@@ -39,6 +39,11 @@ server:
     encoding:
       charset: UTF-8
 
+app:
+  jwt:
+    # Must match the key used by backend-catalogo to issue user tokens.
+    secret: ${APP_JWT_SECRET}
+
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{40} : %msg%n"
