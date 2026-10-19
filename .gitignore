@@ -1,0 +1,21 @@
+target/
+*.class
+*.log
+*.jar
+!mvnw
+!.mvn/wrapper/maven-wrapper.jar
+
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+
+# Secrets of the environment: this file NEVER enters the repository.
+.env
+
+.DS_Store
+Thumbs.db
