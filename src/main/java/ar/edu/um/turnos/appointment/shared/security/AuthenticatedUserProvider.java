@@ -12,10 +12,7 @@ public class AuthenticatedUserProvider {
 
     public AuthenticatedUser currentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)
-                || !authentication.isAuthenticated()) {
-            throw new IllegalStateException("An authenticated end-user identity is required.");
-        }
+        JwtAuthenticationToken jwtAuthentication = authenticatedJwt();
 
         String login = jwtAuthentication.getToken().getSubject();
         String publicIdClaim = jwtAuthentication.getToken().getClaimAsString(JwtClaims.PUBLIC_ID);
@@ -25,5 +22,19 @@ public class AuthenticatedUserProvider {
                 .toList();
 
         return new AuthenticatedUser(login, publicId, authorities);
+    }
+
+    /** Returns the already-validated bearer token for identity-preserving service-to-service calls. */
+    public String currentToken() {
+        return authenticatedJwt().getToken().getTokenValue();
+    }
+
+    private JwtAuthenticationToken authenticatedJwt() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)
+                || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("An authenticated end-user identity is required.");
+        }
+        return jwtAuthentication;
     }
 }

@@ -27,6 +27,9 @@ class TurnosApplicationTests {
         registry.add("CATEDRA_RETRY_MAX_ATTEMPTS", () -> "1");
         registry.add("CATEDRA_RETRY_INITIAL_BACKOFF_MS", () -> "0");
         registry.add("CATEDRA_RETRY_MAX_BACKOFF_MS", () -> "0");
+        registry.add("CATALOGO_API_BASE_URL", () -> "http://localhost:8081");
+        registry.add("CATALOGO_HTTP_CONNECT_TIMEOUT_MS", () -> "1000");
+        registry.add("CATALOGO_HTTP_READ_TIMEOUT_MS", () -> "1000");
     }
 
     @Test
