@@ -40,6 +40,7 @@ server:
       charset: UTF-8
 
 app:
+  time-zone: ${APP_TIME_ZONE:UTC}
   jwt:
     # Must match the key used by backend-catalogo to issue user tokens.
     secret: ${APP_JWT_SECRET}

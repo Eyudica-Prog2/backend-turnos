@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import ar.edu.um.turnos.appointment.catedra.domain.model.CatedraIntegration;
 import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -110,6 +112,24 @@ class CatedraIntegrationGatewayAdapterTest {
         assertThat(failure.getCode()).isEqualTo("CATEDRA_AUTH_FAILED");
         assertThat(failure.getHttpStatus()).isEqualTo(503);
         assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
+    void preservesCatedraProblemCodeAndDoesNotUseDetailForErrorTranslation() {
+        server.enqueue(json(200, authenticationResponse()));
+        server.enqueue(json(400, """
+                {"status":400,"code":"INVALID_DATE_RANGE","detail":"untrusted detail text"}
+                """));
+
+        CatedraClientException failure = catchThrowableOfType(
+                () -> gateway(properties(1, 1000, "tech-login", "tech-password", ""))
+                        .fetchCurrentIntegration(),
+                CatedraClientException.class);
+
+        assertThat(failure).isNotNull();
+        assertThat(failure.getCode()).isEqualTo("INVALID_DATE_RANGE");
+        assertThat(failure.getHttpStatus()).isEqualTo(400);
+        assertThat(failure.getMessage()).doesNotContain("untrusted detail text");
     }
 
     @Test

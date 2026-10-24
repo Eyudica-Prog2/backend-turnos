@@ -8,9 +8,9 @@ import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
 import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
 import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.AppointmentOccupanciesResponse;
 import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.AppointmentOccupancyDtoMapper;
-import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.CatedraClientException;
-import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.CatedraTechnicalClient;
 import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -107,7 +107,7 @@ class CatedraOccupancyGatewayAdapterTest {
 
         assertThat(failure).isNotNull();
         assertThat(failure.getHttpStatus()).isEqualTo(400);
-        assertThat(failure.getCode()).isEqualTo("CATEDRA_ERROR");
+        assertThat(failure.getCode()).isEqualTo("INVALID_DATE_RANGE");
         assertThat(failure.getMessage()).doesNotContain("private upstream detail");
     }
 
