@@ -161,6 +161,20 @@ class CatedraIntegrationGatewayAdapterTest {
     }
 
     @Test
+    void neverRetriesANonIdempotentPostAfterAnAmbiguousTimeout() {
+        server.enqueue(delayedJson(201, "{\"accepted\":true}", 300));
+        CatedraProperties properties = properties(3, 50, "", "", "configured-token-for-tests");
+
+        CatedraClientException failure = catchThrowableOfType(
+                () -> technicalClient(properties).post("/api/appointment-holds", "request-body"),
+                CatedraClientException.class);
+
+        assertThat(failure).isNotNull();
+        assertThat(failure.getCode()).isEqualTo("CATEDRA_UNAVAILABLE");
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
     void canUseAnExternallyConfiguredTechnicalTokenWithoutLogin() throws Exception {
         server.enqueue(json(200, integrationResponse()));
 
@@ -175,6 +189,19 @@ class CatedraIntegrationGatewayAdapterTest {
     }
 
     private CatedraIntegrationGatewayAdapter gateway(CatedraProperties properties) {
+        CatedraTechnicalClient technicalClient = technicalClient(properties);
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .build();
+
+        return new CatedraIntegrationGatewayAdapter(
+                technicalClient,
+                objectMapper,
+                new ar.edu.um.turnos.appointment.catedra.infrastructure.rest.mapper
+                        .CatedraIntegrationResponseMapper());
+    }
+
+    private CatedraTechnicalClient technicalClient(CatedraProperties properties) {
         HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(properties.http().connectTimeoutMs()))
                 .build();
@@ -185,12 +212,7 @@ class CatedraIntegrationGatewayAdapterTest {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .build();
 
-        CatedraTechnicalClient technicalClient = new CatedraTechnicalClient(properties, restClient, objectMapper);
-        return new CatedraIntegrationGatewayAdapter(
-                technicalClient,
-                objectMapper,
-                new ar.edu.um.turnos.appointment.catedra.infrastructure.rest.mapper
-                        .CatedraIntegrationResponseMapper());
+        return new CatedraTechnicalClient(properties, restClient, objectMapper);
     }
 
     private CatedraProperties properties(int maxAttempts, long readTimeoutMs,

@@ -64,6 +64,32 @@ public class CatedraTechnicalClient {
         }
     }
 
+    /** Executes a non-idempotent POST once; network failures are never retried blindly. */
+    public String post(String path, Object body) {
+        validatePath(path);
+        String token = technicalToken();
+        try {
+            return post(path, token, body);
+        } catch (RejectedTechnicalTokenException rejectedToken) {
+            if (properties.api().hasConfiguredToken() || !properties.api().hasLoginCredentials()) {
+                throw authenticationFailed();
+            }
+            String refreshedToken = renewToken(rejectedToken.token());
+            try {
+                return post(path, refreshedToken, body);
+            } catch (RejectedTechnicalTokenException stillRejected) {
+                synchronized (this) {
+                    cachedToken = null;
+                }
+                throw authenticationFailed();
+            }
+        } catch (RetryableCatedraCallException ambiguousFailure) {
+            throw new CatedraClientException(
+                    "CATEDRA_UNAVAILABLE", 503,
+                    "The catedra response was unavailable; the operation was not retried.");
+        }
+    }
+
     private String technicalToken() {
         String token = cachedToken;
         if (hasText(token)) {
@@ -140,6 +166,22 @@ public class CatedraTechnicalClient {
                 throw translateClientFailure(failure);
             }
         });
+    }
+
+    private String post(String path, String token, Object body) {
+        try {
+            return restClient.post()
+                    .uri(absoluteUri(path))
+                    .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + token)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+        } catch (RestClientResponseException failure) {
+            throw translateResponseFailure(failure, false, token);
+        } catch (RestClientException failure) {
+            throw translateClientFailure(failure);
+        }
     }
 
     private static RuntimeException translateClientFailure(RestClientException failure) {

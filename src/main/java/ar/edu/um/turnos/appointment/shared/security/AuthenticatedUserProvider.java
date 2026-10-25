@@ -21,7 +21,12 @@ public class AuthenticatedUserProvider {
                 .map(authority -> authority.getAuthority())
                 .toList();
 
-        return new AuthenticatedUser(login, publicId, authorities);
+        return new AuthenticatedUser(
+                login,
+                publicId,
+                jwtAuthentication.getToken().getClaimAsString(JwtClaims.FIRST_NAME),
+                jwtAuthentication.getToken().getClaimAsString(JwtClaims.LAST_NAME),
+                authorities);
     }
 
     /** Returns the already-validated bearer token for identity-preserving service-to-service calls. */

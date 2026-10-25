@@ -1,5 +1,15 @@
 package ar.edu.um.turnos.appointment;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -14,6 +24,9 @@ class TurnosApplicationTests {
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+
+    @Autowired
+    private ReservationRepository reservations;
 
     @DynamicPropertySource
     static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
@@ -36,5 +49,19 @@ class TurnosApplicationTests {
     @Test
     void applicationContextStartsWithPostgres() {
         // Starting the Spring context verifies datasource and Flyway configuration.
+    }
+
+    @Test
+    void storesReservationProcessAndDeduplicatesEventsInPostgres() {
+        Instant now = Instant.now();
+        ReservationProcess process = reservations.saveProcess(ReservationProcess.created(
+                UUID.randomUUID(), 15, LocalDate.parse("2027-01-04"),
+                LocalTime.parse("09:00"), LocalTime.parse("09:30"),
+                "Ana", "Gomez", "{}", now));
+
+        assertThat(process.id()).isNotNull();
+        assertThat(process.status()).isEqualTo(ReservationProcessStatus.CREATED);
+        assertThat(reservations.registerEventIfNew("event-test-1", "AdditionalInformationRequested", now)).isTrue();
+        assertThat(reservations.registerEventIfNew("event-test-1", "AdditionalInformationRequested", now)).isFalse();
     }
 }
