@@ -29,6 +29,10 @@ Ejecutar `./mvnw test`. La prueba de contexto usa PostgreSQL con Testcontainers;
 
 - `POST /api/reservations` acepta únicamente `professionalId`, `date` y `startTime`; el `externalPatientId` se deriva del claim `publicId` del JWT de usuario.
 - `POST /api/reservations/{reservationProcessId}/confirm` verifica propiedad y vencimiento antes de confirmar el hold.
+- `POST /api/reservations/{reservationProcessId}/phone` acepta `{ "phoneNumber": "..." }`, normaliza espacios, guiones, paréntesis y puntos, y publica `AdditionalInformationSubmitted` en el topic asignado. Solo responde `202` después del ACK de Kafka.
+- `GET /api/reservations/{reservationProcessId}` devuelve el estado, vencimiento, resultado/error y estado de envío del teléfono; solo el usuario dueño puede consultarlo.
 - El consumidor Kafka obtiene bootstrap server, consumer group y topic desde la configuración de integración de cátedra al iniciar. Deduplica `eventId` y confirma el offset solo luego de persistir el cambio.
 - Para confirmar, el JWT debe incluir además los claims `firstName` y `lastName`, emitidos por `backend-catalogo`. Tokens anteriores que no los incluyan no pueden confirmar un hold y reciben `USER_PROFILE_CLAIMS_MISSING`; basta volver a autenticarse para recibir un token actualizado.
 - Una respuesta ambigua al confirmar se reconcilia por `GET /api/appointments` antes de considerar un reintento. La creación/confirmación no se reintenta ciegamente.
+- Un envío de teléfono sin ACK queda como `PENDING`: no se reenvía automáticamente. El proceso se puede consultar y la recepción de un rechazo habilita un nuevo intento con un `eventId` nuevo.
+- El teléfono se valida después de normalizar con `^\+?[0-9]{7,15}$`; no se incluye en respuestas ni logs.

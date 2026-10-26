@@ -54,6 +54,7 @@ public class ReservationMapper {
                 entity.getAppointmentDate(), entity.getStartTime(), entity.getEndTime(),
                 entity.getProfessionalFirstName(), entity.getProfessionalLastName(),
                 entity.getPatientFirstName(), entity.getPatientLastName(), entity.getPatientPhone(),
+                entity.getPhoneSubmissionStatus(), entity.getPhoneSubmissionEventId(),
                 entity.getStatus(), entity.getCreatedAt(), entity.getConfirmedAt(),
                 entity.getCancelledAt(), entity.getCancellationReason());
     }
@@ -74,6 +75,8 @@ public class ReservationMapper {
         entity.setPatientFirstName(reservation.patientFirstName());
         entity.setPatientLastName(reservation.patientLastName());
         entity.setPatientPhone(reservation.patientPhone());
+        entity.setPhoneSubmissionStatus(reservation.phoneSubmissionStatus());
+        entity.setPhoneSubmissionEventId(reservation.phoneSubmissionEventId());
         entity.setStatus(reservation.status());
         entity.setCreatedAt(reservation.createdAt());
         entity.setConfirmedAt(reservation.confirmedAt());

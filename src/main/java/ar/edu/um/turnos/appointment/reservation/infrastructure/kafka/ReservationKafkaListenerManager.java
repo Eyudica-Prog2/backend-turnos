@@ -1,8 +1,8 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
-import ar.edu.um.turnos.appointment.catedra.domain.model.CatedraIntegration;
-import ar.edu.um.turnos.appointment.catedra.domain.ports.out.CatedraIntegrationGateway;
 import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
+import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
 import jakarta.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,11 +26,11 @@ public class ReservationKafkaListenerManager implements ApplicationRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReservationKafkaListenerManager.class);
 
-    private final CatedraIntegrationGateway integrationGateway;
+    private final ReservationKafkaConfigurationGateway integrationGateway;
     private final ReservationKafkaEventConsumer eventConsumer;
     private volatile MessageListenerContainer listenerContainer;
 
-    public ReservationKafkaListenerManager(CatedraIntegrationGateway integrationGateway,
+    public ReservationKafkaListenerManager(ReservationKafkaConfigurationGateway integrationGateway,
                                            ReservationKafkaEventConsumer eventConsumer) {
         this.integrationGateway = integrationGateway;
         this.eventConsumer = eventConsumer;
@@ -39,8 +39,8 @@ public class ReservationKafkaListenerManager implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         try {
-            CatedraIntegration integration = integrationGateway.fetchCurrentIntegration();
-            if (!"PROVISIONED".equals(integration.provisioningStatus())) {
+            ReservationKafkaConfiguration integration = integrationGateway.currentConfiguration();
+            if (!integration.provisioned()) {
                 LOGGER.warn("Reservation Kafka consumer was not started: catedra integration is not provisioned.");
                 return;
             }
@@ -51,24 +51,24 @@ public class ReservationKafkaListenerManager implements ApplicationRunner {
         }
     }
 
-    synchronized void start(CatedraIntegration integration) {
-        if (listenerContainer != null || integration.kafkaBootstrapServers() == null
-                || integration.kafkaBootstrapServers().isBlank()
-                || integration.kafkaAppointmentActionsTopic() == null
-                || integration.kafkaAppointmentActionsTopic().isBlank()) {
+    synchronized void start(ReservationKafkaConfiguration integration) {
+        if (listenerContainer != null || integration.bootstrapServers() == null
+                || integration.bootstrapServers().isBlank()
+                || integration.actionsTopic() == null
+                || integration.actionsTopic().isBlank()) {
             return;
         }
         eventConsumer.setExpectedGroupId(integration.groupId());
 
         Map<String, Object> consumerProperties = new HashMap<>();
-        consumerProperties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, integration.kafkaBootstrapServers());
-        consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, integration.kafkaConsumerGroupId());
+        consumerProperties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, integration.bootstrapServers());
+        consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, integration.consumerGroupId());
         consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProperties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        ContainerProperties containerProperties = new ContainerProperties(integration.kafkaAppointmentActionsTopic());
+        ContainerProperties containerProperties = new ContainerProperties(integration.actionsTopic());
         containerProperties.setAckMode(ContainerProperties.AckMode.MANUAL);
         containerProperties.setMessageListener((AcknowledgingMessageListener<String, String>) (record, acknowledgement) -> {
             eventConsumer.consume(record.key(), record.value());

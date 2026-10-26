@@ -21,6 +21,8 @@ public record Reservation(
         String patientFirstName,
         String patientLastName,
         String patientPhone,
+        PhoneSubmissionStatus phoneSubmissionStatus,
+        String phoneSubmissionEventId,
         String status,
         Instant createdAt,
         Instant confirmedAt,
@@ -31,15 +33,44 @@ public record Reservation(
         return new Reservation(newId, processId, reservationId, ownerPublicId, externalPatientId,
                 professionalId, appointmentDate, startTime, endTime, professionalFirstName,
                 professionalLastName, patientFirstName, patientLastName, patientPhone,
-                status, createdAt, confirmedAt, cancelledAt, cancellationReason);
+                phoneSubmissionStatus, phoneSubmissionEventId, status, createdAt,
+                confirmedAt, cancelledAt, cancellationReason);
+    }
+
+    public Reservation phoneSubmissionPending(String phone, String eventId) {
+        if (phoneSubmissionStatus != PhoneSubmissionStatus.NOT_SENT) {
+            throw new IllegalStateException("A phone submission is already pending or was sent.");
+        }
+        return new Reservation(id, processId, reservationId, ownerPublicId, externalPatientId,
+                professionalId, appointmentDate, startTime, endTime, professionalFirstName,
+                professionalLastName, patientFirstName, patientLastName, phone,
+                PhoneSubmissionStatus.PENDING, eventId, status, createdAt, confirmedAt,
+                cancelledAt, cancellationReason);
+    }
+
+    public Reservation phoneSubmissionSent(String eventId) {
+        if (phoneSubmissionStatus != PhoneSubmissionStatus.PENDING
+                || phoneSubmissionEventId == null || !phoneSubmissionEventId.equals(eventId)) {
+            throw new IllegalStateException("Only the matching pending phone event can be marked as sent.");
+        }
+        return new Reservation(id, processId, reservationId, ownerPublicId, externalPatientId,
+                professionalId, appointmentDate, startTime, endTime, professionalFirstName,
+                professionalLastName, patientFirstName, patientLastName, patientPhone,
+                PhoneSubmissionStatus.SENT, phoneSubmissionEventId, status, createdAt,
+                confirmedAt, cancelledAt, cancellationReason);
     }
 
     public Reservation withEvent(ReservationEvent event, String newStatus, Instant now) {
+        boolean newPhoneRequest = event != null && (
+                "AdditionalInformationRequested".equals(event.eventType())
+                        || "AdditionalInformationRejected".equals(event.eventType()));
         return new Reservation(id, processId,
                 event == null || event.reservationId() == null ? reservationId : event.reservationId(), ownerPublicId,
                 externalPatientId, professionalId, appointmentDate, startTime, endTime,
                 professionalFirstName, professionalLastName, patientFirstName, patientLastName,
-                patientPhone, newStatus, createdAt,
+                newPhoneRequest ? null : patientPhone,
+                newPhoneRequest ? PhoneSubmissionStatus.NOT_SENT : phoneSubmissionStatus,
+                newPhoneRequest ? null : phoneSubmissionEventId, newStatus, createdAt,
                 event != null && "AppointmentConfirmed".equals(event.eventType())
                         ? (event.occurredAt() == null ? now : event.occurredAt()) : confirmedAt,
                 cancelledAt, cancellationReason);

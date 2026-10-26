@@ -5,6 +5,7 @@ import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentHoldGateway;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
@@ -80,7 +81,7 @@ public class ConfirmReservationUseCaseImpl implements ConfirmReservationUseCase 
                         current.ownerPublicId().toString(), current.professionalId(), current.appointmentDate(),
                         current.startTime(), current.endTime(), current.professionalFirstName(),
                         current.professionalLastName(), patientFirstName, patientLastName, null,
-                        "PHONE_PENDING", now, null, null, null)
+                        PhoneSubmissionStatus.NOT_SENT, null, "PHONE_PENDING", now, null, null, null)
                 : existing.withEvent(null, "PHONE_PENDING", now);
         reservations.saveConfirmation(waiting, reservation);
         return new ReservationConfirmResult(response.reservationProcessId(),

@@ -4,6 +4,7 @@ import ar.edu.um.turnos.appointment.reservation.application.exception.Reservatio
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ProcessReservationEventUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Clock;
@@ -75,6 +76,7 @@ public class ProcessReservationEventUseCaseImpl implements ProcessReservationEve
                 event.professionalId() == null ? process.professionalId() : event.professionalId(),
                 date, startTime, process.endTime(), process.professionalFirstName(),
                 process.professionalLastName(), process.patientFirstName(), process.patientLastName(),
+                null, PhoneSubmissionStatus.NOT_SENT,
                 null, "PHONE_PENDING", process.createdAt(), null, null, null);
     }
 

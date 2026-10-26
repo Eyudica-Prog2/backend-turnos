@@ -6,12 +6,15 @@ import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.dto.CatedraInteg
 import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.mapper.CatedraIntegrationResponseMapper;
 import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
+import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
+import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CatedraIntegrationGatewayAdapter implements CatedraIntegrationGateway {
+public class CatedraIntegrationGatewayAdapter
+        implements CatedraIntegrationGateway, ReservationKafkaConfigurationGateway {
 
     private static final String INTEGRATION_PATH = "/api/student/integration";
 
@@ -45,5 +48,14 @@ public class CatedraIntegrationGatewayAdapter implements CatedraIntegrationGatew
                     "CATEDRA_INVALID_RESPONSE", 503,
                     "The catedra integration response could not be parsed or is incomplete.");
         }
+    }
+
+    @Override
+    public ReservationKafkaConfiguration currentConfiguration() {
+        CatedraIntegration integration = fetchCurrentIntegration();
+        return new ReservationKafkaConfiguration(integration.groupId(),
+                integration.kafkaBootstrapServers(), integration.kafkaConsumerGroupId(),
+                integration.kafkaAppointmentActionsTopic(), integration.kafkaAppointmentPhoneTopic(),
+                "PROVISIONED".equals(integration.provisioningStatus()));
     }
 }

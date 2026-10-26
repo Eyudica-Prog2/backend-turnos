@@ -11,6 +11,10 @@ import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmR
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CreateReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationProcessUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservationPhoneUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionResult;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessDetails;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper.ReservationDtoMapper;
 import ar.edu.um.turnos.appointment.shared.error.ApiExceptionHandler;
 import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
@@ -48,6 +52,8 @@ class ReservationControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockitoBean private CreateReservationUseCase createReservation;
     @MockitoBean private ConfirmReservationUseCase confirmReservation;
+    @MockitoBean private SubmitReservationPhoneUseCase submitReservationPhone;
+    @MockitoBean private GetReservationProcessUseCase getReservationProcess;
 
     @Test
     void createsHoldWithoutAcceptingOwnerFromRequest() throws Exception {
@@ -105,6 +111,40 @@ class ReservationControllerTest {
                                 {"professionalId":15,"date":"2026-10-26","startTime":"09:00"}
                                 """))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void submitsPhoneWithoutReturningThePhoneNumber() throws Exception {
+        when(submitReservationPhone.submit("process-1", OWNER, "+54 (9) 261-555.1234"))
+                .thenReturn(new PhoneSubmissionResult(
+                        "process-1", "WAITING_FOR_PHONE", "SENT", Instant.parse("2026-10-26T10:00:00Z")));
+
+        mockMvc.perform(post("/api/reservations/process-1/phone")
+                        .header("Authorization", "Bearer " + userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"phoneNumber":"+54 (9) 261-555.1234"}
+                                """))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.reservationProcessId").value("process-1"))
+                .andExpect(jsonPath("$.phoneSubmissionStatus").value("SENT"))
+                .andExpect(jsonPath("$.phoneNumber").doesNotExist());
+        verify(submitReservationPhone).submit("process-1", OWNER, "+54 (9) 261-555.1234");
+    }
+
+    @Test
+    void queriesOnlyTheAuthenticatedUsersProcess() throws Exception {
+        when(getReservationProcess.get("process-1", OWNER)).thenReturn(new ReservationProcessDetails(
+                "process-1", "WAITING_FOR_PHONE", Instant.parse("2026-10-26T10:00:00Z"),
+                null, "PHONE_PENDING", null, "NOT_SENT"));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .get("/api/reservations/process-1")
+                        .header("Authorization", "Bearer " + userToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("WAITING_FOR_PHONE"))
+                .andExpect(jsonPath("$.phoneSubmissionStatus").value("NOT_SENT"));
+        verify(getReservationProcess).get("process-1", OWNER);
     }
 
     private static String userToken() throws Exception {

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -63,5 +65,36 @@ class TurnosApplicationTests {
         assertThat(process.status()).isEqualTo(ReservationProcessStatus.CREATED);
         assertThat(reservations.registerEventIfNew("event-test-1", "AdditionalInformationRequested", now)).isTrue();
         assertThat(reservations.registerEventIfNew("event-test-1", "AdditionalInformationRequested", now)).isFalse();
+    }
+
+    @Test
+    void claimsPhoneSubmissionAtomicallyAndPersistsItsStatus() {
+        Instant now = Instant.now();
+        UUID owner = UUID.randomUUID();
+        ReservationProcess process = reservations.saveProcess(ReservationProcess.created(
+                owner, 15, LocalDate.parse("2027-01-04"), LocalTime.parse("09:00"),
+                LocalTime.parse("09:30"), "Ana", "Gomez", "{}", now));
+        process = process.held("process-phone-test", "hold-phone-test", now.plusSeconds(600), "{}", now)
+                .waitingForPhone("Juan", "Perez", "{}", now.plusSeconds(600), now)
+                .apply(new ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent(
+                        "request-phone-test", "AdditionalInformationRequested", "process-phone-test",
+                        "hold-phone-test", null, null, null, null, null, null, null, null,
+                        now.plusSeconds(600), now, 1), now);
+        reservations.saveProcess(process);
+        Reservation reservation = new Reservation(null, process.id(), null, owner, owner.toString(),
+                15, LocalDate.parse("2027-01-04"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
+                "Ana", "Gomez", "Juan", "Perez", null, PhoneSubmissionStatus.NOT_SENT,
+                null, "PHONE_PENDING", now, null, null, null);
+        reservations.saveReservation(reservation);
+
+        Reservation pending = reservation.phoneSubmissionPending("+5492615551234", "event-phone-1");
+        assertThat(reservations.beginPhoneSubmission(pending, "request-phone-test", now)).isTrue();
+        assertThat(reservations.beginPhoneSubmission(
+                reservation.phoneSubmissionPending("+5492615551234", "event-phone-2"),
+                "request-phone-test", now)).isFalse();
+        assertThat(reservations.markPhoneSubmissionSent(pending.phoneSubmissionSent("event-phone-1"))).isTrue();
+        assertThat(reservations.findReservationByProcessId(process.id()))
+                .get().extracting(Reservation::phoneSubmissionStatus)
+                .isEqualTo(PhoneSubmissionStatus.SENT);
     }
 }

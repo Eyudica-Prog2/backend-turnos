@@ -17,5 +17,8 @@ target/
 # Secrets of the environment: this file NEVER enters the repository.
 .env
 
+# Local ZeroTier daemon state (includes authtoken.secret).
+/status/
+
 .DS_Store
 Thumbs.db

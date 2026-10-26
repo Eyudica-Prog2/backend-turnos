@@ -71,6 +71,28 @@ public class JpaReservationRepositoryAdapter implements ReservationRepository {
 
     @Override
     @Transactional
+    public boolean beginPhoneSubmission(Reservation pendingReservation, String requestEventId, Instant now) {
+        return reservationRepository.beginPhoneSubmission(pendingReservation.processId(), requestEventId,
+                pendingReservation.patientPhone(), pendingReservation.phoneSubmissionEventId(), now) == 1;
+    }
+
+    @Override
+    @Transactional
+    public boolean markPhoneSubmissionSent(Reservation sentReservation) {
+        return reservationRepository.markPhoneSubmissionSent(
+                sentReservation.processId(), sentReservation.phoneSubmissionEventId()) == 1;
+    }
+
+    @Override
+    @Transactional
+    public void recordProcessError(Long processId, String error, Instant updatedAt) {
+        if (processId != null) {
+            processRepository.updateLastError(processId, error, updatedAt);
+        }
+    }
+
+    @Override
+    @Transactional
     public boolean registerEventIfNew(String eventId, String eventType, Instant processedAt) {
         return eventRepository.insertIfAbsent(eventId, eventType, processedAt) == 1;
     }

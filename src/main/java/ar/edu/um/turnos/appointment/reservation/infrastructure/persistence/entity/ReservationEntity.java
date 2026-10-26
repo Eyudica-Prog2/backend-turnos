@@ -2,6 +2,8 @@ package ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.enti
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
 
 @Entity
 @Table(name = "reservation", uniqueConstraints = {
@@ -48,6 +51,11 @@ public class ReservationEntity {
     private String patientLastName;
     @Column(name = "patient_phone", length = 32)
     private String patientPhone;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "phone_submission_status", nullable = false, length = 20)
+    private PhoneSubmissionStatus phoneSubmissionStatus;
+    @Column(name = "phone_submission_event_id", length = 120)
+    private String phoneSubmissionEventId;
     @Column(nullable = false, length = 40)
     private String status;
     @Column(nullable = false)
@@ -74,6 +82,8 @@ public class ReservationEntity {
     public String getPatientFirstName() { return patientFirstName; }
     public String getPatientLastName() { return patientLastName; }
     public String getPatientPhone() { return patientPhone; }
+    public PhoneSubmissionStatus getPhoneSubmissionStatus() { return phoneSubmissionStatus; }
+    public String getPhoneSubmissionEventId() { return phoneSubmissionEventId; }
     public String getStatus() { return status; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getConfirmedAt() { return confirmedAt; }
@@ -93,6 +103,8 @@ public class ReservationEntity {
     public void setPatientFirstName(String value) { patientFirstName = value; }
     public void setPatientLastName(String value) { patientLastName = value; }
     public void setPatientPhone(String value) { patientPhone = value; }
+    public void setPhoneSubmissionStatus(PhoneSubmissionStatus value) { phoneSubmissionStatus = value; }
+    public void setPhoneSubmissionEventId(String value) { phoneSubmissionEventId = value; }
     public void setStatus(String value) { status = value; }
     public void setCreatedAt(Instant value) { createdAt = value; }
     public void setConfirmedAt(Instant value) { confirmedAt = value; }

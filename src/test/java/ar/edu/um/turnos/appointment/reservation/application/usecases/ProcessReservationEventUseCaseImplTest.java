@@ -6,6 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Clock;
@@ -83,6 +85,25 @@ class ProcessReservationEventUseCaseImplTest {
 
         verify(reservations, never()).saveProcess(org.mockito.ArgumentMatchers.any());
         verify(reservations, never()).saveReservation(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void rejectedPhoneResetsLocalSubmissionStateForAUserRetry() {
+        ReservationEvent event = event("AdditionalInformationRejected", "reject-event", "hold-1",
+                null, null, null, null, "INVALID_PHONE_NUMBER", NOW.plusSeconds(600));
+        Reservation submitted = new Reservation(3L, 8L, null, OWNER, OWNER.toString(), 15,
+                LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
+                "Ana", "Gomez", "Juan", "Perez", "+54900000000", PhoneSubmissionStatus.SENT,
+                "phone-event", "PHONE_PENDING", NOW, null, null, null);
+        when(reservations.registerEventIfNew("reject-event", event.eventType(), NOW)).thenReturn(true);
+        when(reservations.findProcess("process-1")).thenReturn(Optional.of(held));
+        when(reservations.findReservationByProcessId(8L)).thenReturn(Optional.of(submitted));
+
+        useCase.process(event);
+
+        verify(reservations).saveReservation(org.mockito.ArgumentMatchers.argThat(reservation ->
+                reservation.phoneSubmissionStatus() == PhoneSubmissionStatus.NOT_SENT
+                        && reservation.patientPhone() == null));
     }
 
     @Test

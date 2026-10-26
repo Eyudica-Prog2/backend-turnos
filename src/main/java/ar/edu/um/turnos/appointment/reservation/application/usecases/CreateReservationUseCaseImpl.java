@@ -81,7 +81,7 @@ public class CreateReservationUseCaseImpl implements CreateReservationUseCase {
             if (failure.getHttpStatus() < 500) {
                 reservations.deleteProcess(process.id());
             } else {
-                reservations.saveProcess(process.withLastError(failure.getMessage(), clock.instant()));
+                reservations.recordProcessError(process.id(), failure.getMessage(), clock.instant());
             }
             throw failure;
         }
