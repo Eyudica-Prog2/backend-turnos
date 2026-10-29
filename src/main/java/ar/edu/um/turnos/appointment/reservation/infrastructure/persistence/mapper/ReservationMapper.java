@@ -50,6 +50,7 @@ public class ReservationMapper {
 
     public Reservation toDomain(ReservationEntity entity) {
         return new Reservation(entity.getId(), entity.getProcessId(), entity.getReservationId(),
+                entity.getReservationProcessId(),
                 entity.getOwnerPublicId(), entity.getExternalPatientId(), entity.getProfessionalId(),
                 entity.getAppointmentDate(), entity.getStartTime(), entity.getEndTime(),
                 entity.getProfessionalFirstName(), entity.getProfessionalLastName(),
@@ -64,6 +65,7 @@ public class ReservationMapper {
         entity.setId(reservation.id());
         entity.setProcessId(reservation.processId());
         entity.setReservationId(reservation.reservationId());
+        entity.setReservationProcessId(reservation.reservationProcessId());
         entity.setOwnerPublicId(reservation.ownerPublicId());
         entity.setExternalPatientId(reservation.externalPatientId());
         entity.setProfessionalId(reservation.professionalId());

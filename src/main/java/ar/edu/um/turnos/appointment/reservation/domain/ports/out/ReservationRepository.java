@@ -19,6 +19,10 @@ public interface ReservationRepository {
 
     Optional<Reservation> findReservationByProcessId(Long processId);
 
+    Optional<Reservation> findReservationByReservationId(Long reservationId);
+
+    Optional<Reservation> findReservationByReservationProcessId(String reservationProcessId);
+
     boolean beginPhoneSubmission(Reservation pendingReservation, String requestEventId, Instant now);
 
     boolean markPhoneSubmissionSent(Reservation sentReservation);

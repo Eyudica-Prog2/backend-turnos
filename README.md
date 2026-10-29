@@ -36,3 +36,7 @@ Ejecutar `./mvnw test`. La prueba de contexto usa PostgreSQL con Testcontainers;
 - Una respuesta ambigua al confirmar se reconcilia por `GET /api/appointments` antes de considerar un reintento. La creación/confirmación no se reintenta ciegamente.
 - Un envío de teléfono sin ACK queda como `PENDING`: no se reenvía automáticamente. El proceso se puede consultar y la recepción de un rechazo habilita un nuevo intento con un `eventId` nuevo.
 - El teléfono se valida después de normalizar con `^\+?[0-9]{7,15}$`; no se incluye en respuestas ni logs.
+
+## Consulta de reservas propias
+
+`GET /api/reservations?status=CONFIRMED&from=2026-10-01&to=2026-10-31&page=0&size=20` consulta la cuenta técnica de cátedra y sincroniza la página solicitada en la base local. El paciente se obtiene exclusivamente del claim `publicId` del JWT; no se acepta `externalPatientId` como filtro del cliente. La respuesta solo incluye reservas asociadas a ese usuario, propaga `X-Total-Count` y entrega enlaces `Link` apuntando a este backend. El teléfono del paciente no se expone en la respuesta.

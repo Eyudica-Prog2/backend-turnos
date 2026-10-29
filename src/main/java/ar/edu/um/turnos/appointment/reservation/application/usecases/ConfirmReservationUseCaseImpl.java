@@ -77,7 +77,7 @@ public class ConfirmReservationUseCaseImpl implements ConfirmReservationUseCase 
                 response.expiresAt() == null ? current.expiresAt() : response.expiresAt(), now);
         Reservation existing = reservations.findReservationByProcessId(current.id()).orElse(null);
         Reservation reservation = existing == null
-                ? new Reservation(null, current.id(), null, current.ownerPublicId(),
+                ? new Reservation(null, current.id(), null, current.reservationProcessId(), current.ownerPublicId(),
                         current.ownerPublicId().toString(), current.professionalId(), current.appointmentDate(),
                         current.startTime(), current.endTime(), current.professionalFirstName(),
                         current.professionalLastName(), patientFirstName, patientLastName, null,

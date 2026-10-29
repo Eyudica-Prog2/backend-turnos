@@ -10,6 +10,7 @@ public record Reservation(
         Long id,
         Long processId,
         Long reservationId,
+        String reservationProcessId,
         UUID ownerPublicId,
         String externalPatientId,
         long professionalId,
@@ -30,7 +31,7 @@ public record Reservation(
         String cancellationReason) {
 
     public Reservation withId(Long newId) {
-        return new Reservation(newId, processId, reservationId, ownerPublicId, externalPatientId,
+        return new Reservation(newId, processId, reservationId, reservationProcessId, ownerPublicId, externalPatientId,
                 professionalId, appointmentDate, startTime, endTime, professionalFirstName,
                 professionalLastName, patientFirstName, patientLastName, patientPhone,
                 phoneSubmissionStatus, phoneSubmissionEventId, status, createdAt,
@@ -41,7 +42,7 @@ public record Reservation(
         if (phoneSubmissionStatus != PhoneSubmissionStatus.NOT_SENT) {
             throw new IllegalStateException("A phone submission is already pending or was sent.");
         }
-        return new Reservation(id, processId, reservationId, ownerPublicId, externalPatientId,
+        return new Reservation(id, processId, reservationId, reservationProcessId, ownerPublicId, externalPatientId,
                 professionalId, appointmentDate, startTime, endTime, professionalFirstName,
                 professionalLastName, patientFirstName, patientLastName, phone,
                 PhoneSubmissionStatus.PENDING, eventId, status, createdAt, confirmedAt,
@@ -53,7 +54,7 @@ public record Reservation(
                 || phoneSubmissionEventId == null || !phoneSubmissionEventId.equals(eventId)) {
             throw new IllegalStateException("Only the matching pending phone event can be marked as sent.");
         }
-        return new Reservation(id, processId, reservationId, ownerPublicId, externalPatientId,
+        return new Reservation(id, processId, reservationId, reservationProcessId, ownerPublicId, externalPatientId,
                 professionalId, appointmentDate, startTime, endTime, professionalFirstName,
                 professionalLastName, patientFirstName, patientLastName, patientPhone,
                 PhoneSubmissionStatus.SENT, phoneSubmissionEventId, status, createdAt,
@@ -65,7 +66,8 @@ public record Reservation(
                 "AdditionalInformationRequested".equals(event.eventType())
                         || "AdditionalInformationRejected".equals(event.eventType()));
         return new Reservation(id, processId,
-                event == null || event.reservationId() == null ? reservationId : event.reservationId(), ownerPublicId,
+                event == null || event.reservationId() == null ? reservationId : event.reservationId(),
+                reservationProcessId, ownerPublicId,
                 externalPatientId, professionalId, appointmentDate, startTime, endTime,
                 professionalFirstName, professionalLastName, patientFirstName, patientLastName,
                 newPhoneRequest ? null : patientPhone,

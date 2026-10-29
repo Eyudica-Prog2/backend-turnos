@@ -91,7 +91,7 @@ class ProcessReservationEventUseCaseImplTest {
     void rejectedPhoneResetsLocalSubmissionStateForAUserRetry() {
         ReservationEvent event = event("AdditionalInformationRejected", "reject-event", "hold-1",
                 null, null, null, null, "INVALID_PHONE_NUMBER", NOW.plusSeconds(600));
-        Reservation submitted = new Reservation(3L, 8L, null, OWNER, OWNER.toString(), 15,
+        Reservation submitted = new Reservation(3L, 8L, null, "process-1", OWNER, OWNER.toString(), 15,
                 LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
                 "Ana", "Gomez", "Juan", "Perez", "+54900000000", PhoneSubmissionStatus.SENT,
                 "phone-event", "PHONE_PENDING", NOW, null, null, null);

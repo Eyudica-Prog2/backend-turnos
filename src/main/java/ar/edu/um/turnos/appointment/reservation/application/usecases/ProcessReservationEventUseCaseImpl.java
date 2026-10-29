@@ -71,7 +71,7 @@ public class ProcessReservationEventUseCaseImpl implements ProcessReservationEve
                 ? process.appointmentDate() : LocalDate.parse(event.appointmentDate());
         LocalTime startTime = event.startTime() == null
                 ? process.startTime() : LocalTime.parse(event.startTime());
-        return new Reservation(null, process.id(), event.reservationId(), process.ownerPublicId(),
+        return new Reservation(null, process.id(), event.reservationId(), process.reservationProcessId(), process.ownerPublicId(),
                 process.ownerPublicId().toString(),
                 event.professionalId() == null ? process.professionalId() : event.professionalId(),
                 date, startTime, process.endTime(), process.professionalFirstName(),

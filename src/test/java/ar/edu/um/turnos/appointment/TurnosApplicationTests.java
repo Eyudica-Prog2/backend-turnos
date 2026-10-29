@@ -81,7 +81,8 @@ class TurnosApplicationTests {
                         "hold-phone-test", null, null, null, null, null, null, null, null,
                         now.plusSeconds(600), now, 1), now);
         reservations.saveProcess(process);
-        Reservation reservation = new Reservation(null, process.id(), null, owner, owner.toString(),
+        Reservation reservation = new Reservation(null, process.id(), null, process.reservationProcessId(),
+                owner, owner.toString(),
                 15, LocalDate.parse("2027-01-04"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
                 "Ana", "Gomez", "Juan", "Perez", null, PhoneSubmissionStatus.NOT_SENT,
                 null, "PHONE_PENDING", now, null, null, null);

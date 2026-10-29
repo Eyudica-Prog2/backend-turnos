@@ -43,7 +43,7 @@ class GetReservationProcessUseCaseImplTest {
 
     @Test
     void returnsOnlyClientSafeStateForTheOwner() {
-        Reservation reservation = new Reservation(3L, 9L, 8251L, OWNER, OWNER.toString(), 15,
+        Reservation reservation = new Reservation(3L, 9L, 8251L, "process-1", OWNER, OWNER.toString(), 15,
                 LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
                 "Ana", "Gomez", "Juan", "Perez", null, PhoneSubmissionStatus.PENDING,
                 "event-1", "PHONE_PENDING", process.createdAt(), null, null, null);

@@ -3,6 +3,7 @@ package ar.edu.um.turnos.appointment.reservation.infrastructure.web.controller;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,6 +16,9 @@ import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationPr
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservationPhoneUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionResult;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessDetails;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationPage;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper.ReservationDtoMapper;
 import ar.edu.um.turnos.appointment.shared.error.ApiExceptionHandler;
 import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
@@ -54,6 +58,53 @@ class ReservationControllerTest {
     @MockitoBean private ConfirmReservationUseCase confirmReservation;
     @MockitoBean private SubmitReservationPhoneUseCase submitReservationPhone;
     @MockitoBean private GetReservationProcessUseCase getReservationProcess;
+    @MockitoBean private ListReservationsUseCase listReservations;
+
+    @Test
+    void listsOnlyTheAuthenticatedUsersReservationsAndReturnsPaginationHeaders() throws Exception {
+        Reservation reservation = new Reservation(4L, null, 8251L, "process-1", OWNER, OWNER.toString(), 15,
+                LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
+                "Ana", "Gomez", "Juan", "Perez", "+5492615551234", null, null,
+                "CONFIRMED", Instant.parse("2026-10-20T10:00:00Z"),
+                Instant.parse("2026-10-20T10:01:00Z"), null, null);
+        when(listReservations.list(OWNER, new ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery(
+                "CONFIRMED", LocalDate.parse("2026-10-01"), LocalDate.parse("2026-10-31"), 1, 10)))
+                .thenReturn(new ReservationPage(List.of(reservation), 11,
+                        "</api/reservations?page=0&size=10>; rel=\"prev\""));
+
+        mockMvc.perform(get("/api/reservations")
+                        .header("Authorization", "Bearer " + userToken())
+                        .queryParam("status", "CONFIRMED")
+                        .queryParam("from", "2026-10-01")
+                        .queryParam("to", "2026-10-31")
+                        .queryParam("page", "1")
+                        .queryParam("size", "10")
+                        .queryParam("externalPatientId", "someone-else"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].reservationId").value(8251))
+                .andExpect(jsonPath("$[0].reservationProcessId").value("process-1"))
+                .andExpect(jsonPath("$[0].patientPhone").doesNotExist())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("X-Total-Count", "11"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("Link", "</api/reservations?page=0&size=10>; rel=\"prev\""));
+        verify(listReservations).list(OWNER, new ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery(
+                "CONFIRMED", LocalDate.parse("2026-10-01"), LocalDate.parse("2026-10-31"), 1, 10));
+    }
+
+    @Test
+    void returnsAnEmptyListWhenTheAuthenticatedUserHasNoReservations() throws Exception {
+        when(listReservations.list(OWNER, new ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery(
+                null, null, null, 0, 20))).thenReturn(new ReservationPage(List.of(), 0, null));
+
+        mockMvc.perform(get("/api/reservations").header("Authorization", "Bearer " + userToken()))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("X-Total-Count", "0"));
+        verify(listReservations).list(OWNER, new ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery(
+                null, null, null, 0, 20));
+    }
 
     @Test
     void createsHoldWithoutAcceptingOwnerFromRequest() throws Exception {
@@ -110,6 +161,8 @@ class ReservationControllerTest {
                         .content("""
                                 {"professionalId":15,"date":"2026-10-26","startTime":"09:00"}
                                 """))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/reservations"))
                 .andExpect(status().isUnauthorized());
     }
 

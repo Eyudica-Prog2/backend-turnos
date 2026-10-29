@@ -43,10 +43,15 @@ public class CatedraTechnicalClient {
 
     /** Performs an authenticated GET and refreshes a rejected login token at most once. */
     public String get(String path) {
+        return getWithHeaders(path).body();
+    }
+
+    /** Performs an authenticated GET and retains the headers needed by paginated APIs. */
+    public CatedraTechnicalResponse getWithHeaders(String path) {
         validatePath(path);
         String token = technicalToken();
         try {
-            return get(path, token);
+            return getWithHeaders(path, token);
         } catch (RejectedTechnicalTokenException rejectedToken) {
             if (properties.api().hasConfiguredToken() || !properties.api().hasLoginCredentials()) {
                 throw authenticationFailed();
@@ -54,7 +59,7 @@ public class CatedraTechnicalClient {
 
             String refreshedToken = renewToken(rejectedToken.token());
             try {
-                return get(path, refreshedToken);
+                return getWithHeaders(path, refreshedToken);
             } catch (RejectedTechnicalTokenException stillRejected) {
                 synchronized (this) {
                     cachedToken = null;
@@ -151,7 +156,7 @@ public class CatedraTechnicalClient {
         }
     }
 
-    private String get(String path, String token) {
+    private CatedraTechnicalResponse getWithHeaders(String path, String token) {
         return executeWithRetry(() -> {
             try {
                 ResponseEntity<String> response = restClient.get()
@@ -159,7 +164,9 @@ public class CatedraTechnicalClient {
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + token)
                         .retrieve()
                         .toEntity(String.class);
-                return response.getBody();
+                return new CatedraTechnicalResponse(response.getBody(),
+                        response.getHeaders().getFirst("X-Total-Count"),
+                        response.getHeaders().getFirst(HttpHeaders.LINK));
             } catch (RestClientResponseException failure) {
                 throw translateResponseFailure(failure, false, token);
             } catch (RestClientException failure) {

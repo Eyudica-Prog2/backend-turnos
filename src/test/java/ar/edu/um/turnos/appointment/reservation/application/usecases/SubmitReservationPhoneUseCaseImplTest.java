@@ -65,7 +65,7 @@ class SubmitReservationPhoneUseCaseImplTest {
                 .apply(new ReservationEvent("request-event-1", "AdditionalInformationRequested",
                         "process-1", "hold-1", null, null, null, null, null,
                         null, null, null, EXPIRATION, NOW, 1), NOW);
-        reservation = new Reservation(3L, 9L, null, OWNER, OWNER.toString(), 15,
+        reservation = new Reservation(3L, 9L, null, "process-1", OWNER, OWNER.toString(), 15,
                 LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
                 "Ana", "Gomez", "Juan", "Perez", null, PhoneSubmissionStatus.NOT_SENT,
                 null, "PHONE_PENDING", NOW, null, null, null);
@@ -153,7 +153,7 @@ class SubmitReservationPhoneUseCaseImplTest {
 
     @Test
     void rejectsASecondSendWhenThePreviousOneIsStillUncertain() {
-        Reservation pending = new Reservation(3L, 9L, null, OWNER, OWNER.toString(), 15,
+        Reservation pending = new Reservation(3L, 9L, null, "process-1", OWNER, OWNER.toString(), 15,
                 LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
                 "Ana", "Gomez", "Juan", "Perez", "+5492615551234",
                 PhoneSubmissionStatus.PENDING, "event-1", "PHONE_PENDING", NOW, null, null, null);

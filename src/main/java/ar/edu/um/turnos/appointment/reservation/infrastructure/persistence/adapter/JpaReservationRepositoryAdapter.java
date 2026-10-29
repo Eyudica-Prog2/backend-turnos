@@ -70,6 +70,18 @@ public class JpaReservationRepositoryAdapter implements ReservationRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<Reservation> findReservationByReservationId(Long reservationId) {
+        return reservationRepository.findByReservationId(reservationId).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Reservation> findReservationByReservationProcessId(String reservationProcessId) {
+        return reservationRepository.findByReservationProcessId(reservationProcessId).map(mapper::toDomain);
+    }
+
+    @Override
     @Transactional
     public boolean beginPhoneSubmission(Reservation pendingReservation, String requestEventId, Instant now) {
         return reservationRepository.beginPhoneSubmission(pendingReservation.processId(), requestEventId,

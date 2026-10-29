@@ -25,10 +25,12 @@ public class ReservationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "reservation_process_id", nullable = false, unique = true)
+    @Column(name = "reservation_process_id", unique = true)
     private Long processId;
     @Column(name = "catedra_reservation_id", unique = true)
     private Long reservationId;
+    @Column(name = "catedra_reservation_process_id", unique = true, length = 120)
+    private String reservationProcessId;
     @Column(name = "owner_public_id", nullable = false)
     private UUID ownerPublicId;
     @Column(name = "external_patient_id", nullable = false, length = 100)
@@ -71,6 +73,7 @@ public class ReservationEntity {
     public Long getId() { return id; }
     public Long getProcessId() { return processId; }
     public Long getReservationId() { return reservationId; }
+    public String getReservationProcessId() { return reservationProcessId; }
     public UUID getOwnerPublicId() { return ownerPublicId; }
     public String getExternalPatientId() { return externalPatientId; }
     public long getProfessionalId() { return professionalId; }
@@ -92,6 +95,7 @@ public class ReservationEntity {
     public void setId(Long value) { id = value; }
     public void setProcessId(Long value) { processId = value; }
     public void setReservationId(Long value) { reservationId = value; }
+    public void setReservationProcessId(String value) { reservationProcessId = value; }
     public void setOwnerPublicId(UUID value) { ownerPublicId = value; }
     public void setExternalPatientId(String value) { externalPatientId = value; }
     public void setProfessionalId(long value) { professionalId = value; }

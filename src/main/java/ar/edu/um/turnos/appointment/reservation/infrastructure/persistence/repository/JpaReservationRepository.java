@@ -12,6 +12,10 @@ public interface JpaReservationRepository extends JpaRepository<ReservationEntit
 
     Optional<ReservationEntity> findByProcessId(Long processId);
 
+    Optional<ReservationEntity> findByReservationId(Long reservationId);
+
+    Optional<ReservationEntity> findByReservationProcessId(String reservationProcessId);
+
     @Modifying
     @Query(value = "UPDATE reservation r SET patient_phone = :phone, "
             + "phone_submission_status = 'PENDING', phone_submission_event_id = :eventId "
