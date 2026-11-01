@@ -91,7 +91,22 @@ public record ReservationProcess(
                 error, confirmRequestPayload, now);
     }
 
+    public ReservationProcess cancelled(Instant now) {
+        if (status == ReservationProcessStatus.CANCELLED) {
+            return this;
+        }
+        if (status != ReservationProcessStatus.CONFIRMED) {
+            throw new IllegalStateException("Only a confirmed process can be cancelled.");
+        }
+        return copy(id, reservationProcessId, holdId, patientFirstName, patientLastName,
+                ReservationProcessStatus.CANCELLED, expiresAt, requestEventId, reservationId,
+                "CANCELLED", null, confirmRequestPayload, now);
+    }
+
     public ReservationProcess apply(ReservationEvent event, Instant now) {
+        if ("AppointmentCancelled".equals(event.eventType())) {
+            return status == ReservationProcessStatus.CONFIRMED ? cancelled(now) : this;
+        }
         if (status.isFinal()) {
             return this;
         }

@@ -3,6 +3,7 @@ package ar.edu.um.turnos.appointment.reservation.domain.model;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 import java.util.UUID;
 
 /** Reservation projection owned by this service, separate from the process lifecycle. */
@@ -76,5 +77,14 @@ public record Reservation(
                 event != null && "AppointmentConfirmed".equals(event.eventType())
                         ? (event.occurredAt() == null ? now : event.occurredAt()) : confirmedAt,
                 cancelledAt, cancellationReason);
+    }
+
+    public Reservation cancelled(Instant at, String reason) {
+        Objects.requireNonNull(at, "Cancellation timestamp is required.");
+        return new Reservation(id, processId, reservationId, reservationProcessId, ownerPublicId,
+                externalPatientId, professionalId, appointmentDate, startTime, endTime,
+                professionalFirstName, professionalLastName, patientFirstName, patientLastName,
+                patientPhone, phoneSubmissionStatus, phoneSubmissionEventId, "CANCELLED", createdAt,
+                confirmedAt, at, reason);
     }
 }

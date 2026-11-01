@@ -17,6 +17,8 @@ public interface ReservationRepository {
 
     void saveConfirmation(ReservationProcess process, Reservation reservation);
 
+    void saveCancellation(ReservationProcess process, Reservation reservation);
+
     Optional<Reservation> findReservationByProcessId(Long processId);
 
     Optional<Reservation> findReservationByReservationId(Long reservationId);

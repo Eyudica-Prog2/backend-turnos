@@ -19,7 +19,7 @@ public class ProcessReservationEventUseCaseImpl implements ProcessReservationEve
 
     private static final Set<String> SUPPORTED_EVENTS = Set.of(
             "AdditionalInformationRequested", "AppointmentConfirmed", "AdditionalInformationRejected",
-            "AppointmentProcessExpired", "AppointmentProcessInvalid");
+            "AppointmentProcessExpired", "AppointmentProcessInvalid", "AppointmentCancelled");
 
     private final ReservationRepository reservations;
     private final Clock clock;
@@ -46,6 +46,11 @@ public class ProcessReservationEventUseCaseImpl implements ProcessReservationEve
             throw new ReservationException("RESERVATION_EVENT_MISMATCH", 409,
                     "The event hold identifier does not match the stored process.");
         }
+        if ("AppointmentCancelled".equals(event.eventType()) && process.reservationId() != null
+                && !process.reservationId().equals(event.reservationId())) {
+            throw new ReservationException("RESERVATION_EVENT_MISMATCH", 409,
+                    "The cancellation event reservation identifier does not match the stored process.");
+        }
         if (event.requestEventId() != null && process.requestEventId() != null
                 && !process.requestEventId().equals(event.requestEventId())) {
             return;
@@ -60,10 +65,16 @@ public class ProcessReservationEventUseCaseImpl implements ProcessReservationEve
                 .orElseGet(() -> initialReservation(process, event));
         String status = switch (event.eventType()) {
             case "AppointmentConfirmed" -> "CONFIRMED";
+            case "AppointmentCancelled" -> "CANCELLED";
             case "AppointmentProcessExpired", "AppointmentProcessInvalid" -> "FAILED";
             default -> "PHONE_PENDING";
         };
-        reservations.saveReservation(reservation.withEvent(event, status, clock.instant()));
+        if ("AppointmentCancelled".equals(event.eventType())) {
+            reservations.saveReservation(reservation.cancelled(
+                    event.occurredAt() == null ? clock.instant() : event.occurredAt(), event.reason()));
+        } else {
+            reservations.saveReservation(reservation.withEvent(event, status, clock.instant()));
+        }
     }
 
     private static Reservation initialReservation(ReservationProcess process, ReservationEvent event) {
@@ -97,6 +108,14 @@ public class ProcessReservationEventUseCaseImpl implements ProcessReservationEve
                         || blank(event.appointmentDate()) || blank(event.startTime())
                         || !"CONFIRMED".equals(event.status())) {
                     throw new IllegalArgumentException("AppointmentConfirmed is incomplete.");
+                }
+            }
+            case "AppointmentCancelled" -> {
+                if (event.reservationId() == null || blank(event.requestEventId())
+                        || !"CANCELLED".equals(event.status())
+                        || event.occurredAt() == null
+                        || (event.reason() != null && event.reason().length() > 500)) {
+                    throw new IllegalArgumentException("AppointmentCancelled is incomplete.");
                 }
             }
             case "AdditionalInformationRejected" -> {

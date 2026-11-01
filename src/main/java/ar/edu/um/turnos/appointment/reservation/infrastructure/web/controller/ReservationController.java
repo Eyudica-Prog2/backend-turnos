@@ -4,11 +4,13 @@ import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmR
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CancelReservationUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CreateReservationUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationProcessUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservationPhoneUseCase;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.CreateReservationRequest;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.CancelReservationRequest;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.PhoneSubmissionResponse;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationProcessResponse;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationHoldResponse;
@@ -41,6 +43,7 @@ public class ReservationController {
     private final SubmitReservationPhoneUseCase submitReservationPhone;
     private final GetReservationProcessUseCase getReservationProcess;
     private final ListReservationsUseCase listReservations;
+    private final CancelReservationUseCase cancelReservation;
     private final AuthenticatedUserProvider authenticatedUserProvider;
     private final ReservationDtoMapper mapper;
 
@@ -49,6 +52,7 @@ public class ReservationController {
                                  SubmitReservationPhoneUseCase submitReservationPhone,
                                  GetReservationProcessUseCase getReservationProcess,
                                  ListReservationsUseCase listReservations,
+                                 CancelReservationUseCase cancelReservation,
                                  AuthenticatedUserProvider authenticatedUserProvider,
                                  ReservationDtoMapper mapper) {
         this.createReservation = createReservation;
@@ -56,6 +60,7 @@ public class ReservationController {
         this.submitReservationPhone = submitReservationPhone;
         this.getReservationProcess = getReservationProcess;
         this.listReservations = listReservations;
+        this.cancelReservation = cancelReservation;
         this.authenticatedUserProvider = authenticatedUserProvider;
         this.mapper = mapper;
     }
@@ -117,5 +122,14 @@ public class ReservationController {
         AuthenticatedUser user = authenticatedUserProvider.currentUser();
         return ResponseEntity.ok(mapper.toResponse(
                 getReservationProcess.get(reservationProcessId, user.publicId())));
+    }
+
+    @PostMapping("/{reservationProcessId}/cancel")
+    public ResponseEntity<ReservationResponse> cancel(
+            @PathVariable String reservationProcessId,
+            @Valid @RequestBody(required = false) CancelReservationRequest request) {
+        AuthenticatedUser user = authenticatedUserProvider.currentUser();
+        return ResponseEntity.ok(mapper.toResponse(cancelReservation.cancel(
+                reservationProcessId, user.publicId(), request == null ? null : request.reason())));
     }
 }

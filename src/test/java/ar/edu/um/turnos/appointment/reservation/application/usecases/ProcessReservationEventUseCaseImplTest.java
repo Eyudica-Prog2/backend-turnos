@@ -107,6 +107,79 @@ class ProcessReservationEventUseCaseImplTest {
     }
 
     @Test
+    void cancellationEventConvergesAConfirmedReservationToCancelled() {
+        ReservationProcess confirmed = held.apply(event("AppointmentConfirmed", "confirm-event", "hold-1",
+                8251L, 15L, "2026-10-26", "CONFIRMED", null, null), NOW);
+        Reservation confirmedReservation = new Reservation(3L, 8L, 8251L, "process-1", OWNER,
+                OWNER.toString(), 15, LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"),
+                LocalTime.parse("09:30"), "Ana", "Gomez", "Juan", "Perez", null,
+                PhoneSubmissionStatus.NOT_SENT, null, "CONFIRMED", NOW, NOW, null, null);
+        ReservationEvent cancelled = event("AppointmentCancelled", "cancel-event", "hold-1",
+                8251L, 15L, "2026-10-26", "CANCELLED", "Cambio solicitado", null);
+        when(reservations.registerEventIfNew("cancel-event", cancelled.eventType(), NOW)).thenReturn(true);
+        when(reservations.findProcess("process-1")).thenReturn(Optional.of(confirmed));
+        when(reservations.findReservationByProcessId(8L)).thenReturn(Optional.of(confirmedReservation));
+
+        useCase.process(cancelled);
+
+        verify(reservations).saveProcess(org.mockito.ArgumentMatchers.argThat(process ->
+                process.status().name().equals("CANCELLED")));
+        verify(reservations).saveReservation(org.mockito.ArgumentMatchers.argThat(reservation ->
+                "CANCELLED".equals(reservation.status())
+                        && NOW.equals(reservation.cancelledAt())
+                        && "Cambio solicitado".equals(reservation.cancellationReason())));
+    }
+
+    @Test
+    void lateCancellationCannotMoveAnIncompatibleTerminalProcessBackToCancelled() {
+        ReservationProcess expired = held.apply(event("AppointmentProcessExpired", "expired-event", "hold-1",
+                null, null, null, null, "HOLD_EXPIRED", null), NOW);
+        ReservationEvent lateCancellation = event("AppointmentCancelled", "cancel-event", "hold-1",
+                8251L, 15L, "2026-10-26", "CANCELLED", "Too late", null);
+        when(reservations.registerEventIfNew("cancel-event", lateCancellation.eventType(), NOW)).thenReturn(true);
+        when(reservations.findProcess("process-1")).thenReturn(Optional.of(expired));
+
+        useCase.process(lateCancellation);
+
+        verify(reservations, never()).saveProcess(org.mockito.ArgumentMatchers.any());
+        verify(reservations, never()).saveReservation(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void deduplicatesRepeatedCancellationEvents() {
+        ReservationEvent cancelled = event("AppointmentCancelled", "cancel-event", "hold-1",
+                8251L, 15L, "2026-10-26", "CANCELLED", "Canceled", null);
+        when(reservations.registerEventIfNew("cancel-event", cancelled.eventType(), NOW)).thenReturn(false);
+
+        useCase.process(cancelled);
+
+        verify(reservations, never()).findProcess("process-1");
+        verify(reservations, never()).saveProcess(org.mockito.ArgumentMatchers.any());
+        verify(reservations, never()).saveReservation(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void cancellationEventAfterRestCancellationDoesNotRewriteTheRestState() {
+        ReservationProcess cancelledProcess = held.apply(event("AppointmentConfirmed", "confirm-event", "hold-1",
+                8251L, 15L, "2026-10-26", "CONFIRMED", null, null), NOW)
+                .cancelled(NOW);
+        Reservation cancelledReservation = new Reservation(3L, 8L, 8251L, "process-1", OWNER,
+                OWNER.toString(), 15, LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"),
+                LocalTime.parse("09:30"), "Ana", "Gomez", "Juan", "Perez", null,
+                PhoneSubmissionStatus.NOT_SENT, null, "CANCELLED", NOW, NOW, NOW, "From REST");
+        ReservationEvent event = event("AppointmentCancelled", "cancel-event", "hold-1",
+                8251L, 15L, "2026-10-26", "CANCELLED", "From event", null);
+        when(reservations.registerEventIfNew("cancel-event", event.eventType(), NOW)).thenReturn(true);
+        when(reservations.findProcess("process-1")).thenReturn(Optional.of(cancelledProcess));
+
+        useCase.process(event);
+
+        verify(reservations, never()).saveProcess(org.mockito.ArgumentMatchers.any());
+        verify(reservations, never()).findReservationByProcessId(8L);
+        verify(reservations, never()).saveReservation(cancelledReservation);
+    }
+
+    @Test
     void rejectsUnsupportedSchemaBeforeRegisteringEvent() {
         ReservationEvent invalid = new ReservationEvent("event-1", "AppointmentProcessExpired",
                 "process-1", "hold-1", null, null, null, null, null, null,

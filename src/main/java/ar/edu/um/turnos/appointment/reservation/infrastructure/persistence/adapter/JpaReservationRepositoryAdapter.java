@@ -64,6 +64,15 @@ public class JpaReservationRepositoryAdapter implements ReservationRepository {
     }
 
     @Override
+    @Transactional
+    public void saveCancellation(ReservationProcess process, Reservation reservation) {
+        if (process != null) {
+            processRepository.save(mapper.toEntity(process));
+        }
+        reservationRepository.save(mapper.toEntity(reservation));
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Optional<Reservation> findReservationByProcessId(Long processId) {
         return reservationRepository.findByProcessId(processId).map(mapper::toDomain);

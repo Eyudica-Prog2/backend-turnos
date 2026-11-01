@@ -19,6 +19,7 @@ import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessD
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationPage;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CancelReservationUseCase;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper.ReservationDtoMapper;
 import ar.edu.um.turnos.appointment.shared.error.ApiExceptionHandler;
 import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
@@ -59,6 +60,7 @@ class ReservationControllerTest {
     @MockitoBean private SubmitReservationPhoneUseCase submitReservationPhone;
     @MockitoBean private GetReservationProcessUseCase getReservationProcess;
     @MockitoBean private ListReservationsUseCase listReservations;
+    @MockitoBean private CancelReservationUseCase cancelReservation;
 
     @Test
     void listsOnlyTheAuthenticatedUsersReservationsAndReturnsPaginationHeaders() throws Exception {
@@ -104,6 +106,51 @@ class ReservationControllerTest {
                         .header().string("X-Total-Count", "0"));
         verify(listReservations).list(OWNER, new ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery(
                 null, null, null, 0, 20));
+    }
+
+    @Test
+    void cancelsUsingTheAuthenticatedOwnerAndOptionalReason() throws Exception {
+        Reservation reservation = new Reservation(4L, 9L, 8251L, "process-1", OWNER, OWNER.toString(), 15,
+                LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
+                "Ana", "Gomez", "Juan", "Perez", null, null, null, "CONFIRMED",
+                Instant.parse("2026-10-20T10:00:00Z"), Instant.parse("2026-10-20T10:01:00Z"), null, null)
+                .cancelled(Instant.parse("2026-10-26T08:00:00Z"), "Cambio de planes");
+        when(cancelReservation.cancel("process-1", OWNER, "Cambio de planes")).thenReturn(reservation);
+
+        mockMvc.perform(post("/api/reservations/process-1/cancel")
+                        .header("Authorization", "Bearer " + userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"reason\":\"Cambio de planes\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reservationProcessId").value("process-1"))
+                .andExpect(jsonPath("$.status").value("CANCELLED"))
+                .andExpect(jsonPath("$.cancelledAt").value("2026-10-26T08:00:00Z"));
+        verify(cancelReservation).cancel("process-1", OWNER, "Cambio de planes");
+    }
+
+    @Test
+    void acceptsCancellationReasonOf500CharactersAndRejectsLongerReason() throws Exception {
+        String maximumReason = "r".repeat(500);
+        when(cancelReservation.cancel("process-1", OWNER, maximumReason)).thenReturn(
+                new Reservation(4L, 9L, 8251L, "process-1", OWNER, OWNER.toString(), 15,
+                        LocalDate.parse("2026-10-26"), LocalTime.parse("09:00"), LocalTime.parse("09:30"),
+                        "Ana", "Gomez", "Juan", "Perez", null, null, null, "CANCELLED",
+                        Instant.parse("2026-10-20T10:00:00Z"), Instant.parse("2026-10-20T10:01:00Z"),
+                        Instant.parse("2026-10-26T08:00:00Z"), maximumReason));
+
+        mockMvc.perform(post("/api/reservations/process-1/cancel")
+                        .header("Authorization", "Bearer " + userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"reason\":\"" + maximumReason + "\"}"))
+                .andExpect(status().isOk());
+        verify(cancelReservation).cancel("process-1", OWNER, maximumReason);
+
+        mockMvc.perform(post("/api/reservations/process-1/cancel")
+                        .header("Authorization", "Bearer " + userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"reason\":\"" + maximumReason + "x\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
     }
 
     @Test
@@ -163,6 +210,8 @@ class ReservationControllerTest {
                                 """))
                 .andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/reservations"))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/api/reservations/process-1/cancel"))
                 .andExpect(status().isUnauthorized());
     }
 

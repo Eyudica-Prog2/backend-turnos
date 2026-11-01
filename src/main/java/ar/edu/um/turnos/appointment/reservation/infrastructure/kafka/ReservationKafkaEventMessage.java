@@ -42,6 +42,12 @@ record ReservationKafkaEventMessage(
                     throw new IllegalArgumentException("AppointmentConfirmed is incomplete.");
                 }
             }
+            case "AppointmentCancelled" -> {
+                if (blank(requestEventId) || reservationId == null || !"CANCELLED".equals(status)
+                        || (reason != null && reason.length() > 500)) {
+                    throw new IllegalArgumentException("AppointmentCancelled is incomplete.");
+                }
+            }
             case "AdditionalInformationRejected" -> {
                 if (blank(requestEventId) || blank(reason) || blank(message) || expiresAt == null) {
                     throw new IllegalArgumentException("AdditionalInformationRejected is incomplete.");

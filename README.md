@@ -40,3 +40,5 @@ Ejecutar `./mvnw test`. La prueba de contexto usa PostgreSQL con Testcontainers;
 ## Consulta de reservas propias
 
 `GET /api/reservations?status=CONFIRMED&from=2026-10-01&to=2026-10-31&page=0&size=20` consulta la cuenta técnica de cátedra y sincroniza la página solicitada en la base local. El paciente se obtiene exclusivamente del claim `publicId` del JWT; no se acepta `externalPatientId` como filtro del cliente. La respuesta solo incluye reservas asociadas a ese usuario, propaga `X-Total-Count` y entrega enlaces `Link` apuntando a este backend. El teléfono del paciente no se expone en la respuesta.
+
+`POST /api/reservations/{reservationProcessId}/cancel` cancela una reserva confirmada del usuario autenticado. El body es opcional (`{"reason":"..."}`; hasta 500 caracteres). Las reservas inexistentes y ajenas responden igual (`404 RESERVATION_NOT_FOUND`); una reserva ya cancelada devuelve su estado sin repetir la llamada a cátedra.

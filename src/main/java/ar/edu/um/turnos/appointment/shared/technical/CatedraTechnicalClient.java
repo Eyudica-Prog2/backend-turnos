@@ -70,6 +70,11 @@ public class CatedraTechnicalClient {
     }
 
     /** Executes a non-idempotent POST once; network failures are never retried blindly. */
+    public String post(String path) {
+        return post(path, null);
+    }
+
+    /** Executes a non-idempotent POST once; network failures are never retried blindly. */
     public String post(String path, Object body) {
         validatePath(path);
         String token = technicalToken();
@@ -177,13 +182,14 @@ public class CatedraTechnicalClient {
 
     private String post(String path, String token, Object body) {
         try {
-            return restClient.post()
+            RestClient.RequestBodySpec request = restClient.post()
                     .uri(absoluteUri(path))
                     .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + token)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(body)
-                    .retrieve()
-                    .body(String.class);
+                    .contentType(MediaType.APPLICATION_JSON);
+            if (body != null) {
+                request.body(body);
+            }
+            return request.retrieve().body(String.class);
         } catch (RestClientResponseException failure) {
             throw translateResponseFailure(failure, false, token);
         } catch (RestClientException failure) {
