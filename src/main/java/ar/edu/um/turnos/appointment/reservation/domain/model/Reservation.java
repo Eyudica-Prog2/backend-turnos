@@ -87,4 +87,39 @@ public record Reservation(
                 patientPhone, phoneSubmissionStatus, phoneSubmissionEventId, "CANCELLED", createdAt,
                 confirmedAt, at, reason);
     }
+
+    public Reservation failed() {
+        if ("CONFIRMED".equals(status) || "CANCELLED".equals(status) || "FAILED".equals(status)) {
+            return this;
+        }
+        return new Reservation(id, processId, reservationId, reservationProcessId, ownerPublicId,
+                externalPatientId, professionalId, appointmentDate, startTime, endTime,
+                professionalFirstName, professionalLastName, patientFirstName, patientLastName,
+                patientPhone, phoneSubmissionStatus, phoneSubmissionEventId, "FAILED", createdAt,
+                confirmedAt, cancelledAt, cancellationReason);
+    }
+
+    public Reservation withProcessContext(Long localProcessId) {
+        return new Reservation(id, localProcessId, reservationId, reservationProcessId, ownerPublicId,
+                externalPatientId, professionalId, appointmentDate, startTime, endTime,
+                professionalFirstName, professionalLastName, patientFirstName, patientLastName,
+                patientPhone, phoneSubmissionStatus, phoneSubmissionEventId, status, createdAt,
+                confirmedAt, cancelledAt, cancellationReason);
+    }
+
+    /** Merges an authoritative catedra snapshot while preserving local ownership and phone progress. */
+    public Reservation reconcileFromRemote(Reservation remote, Long localProcessId) {
+        Objects.requireNonNull(remote, "Remote reservation snapshot is required.");
+        return new Reservation(id, localProcessId, remote.reservationId(), remote.reservationProcessId(),
+                ownerPublicId, externalPatientId, remote.professionalId(), remote.appointmentDate(),
+                remote.startTime(), remote.endTime(), remote.professionalFirstName(), remote.professionalLastName(),
+                remote.patientFirstName() == null ? patientFirstName : remote.patientFirstName(),
+                remote.patientLastName() == null ? patientLastName : remote.patientLastName(),
+                remote.patientPhone() == null ? patientPhone : remote.patientPhone(),
+                phoneSubmissionStatus, phoneSubmissionEventId, remote.status(),
+                remote.createdAt() == null ? createdAt : remote.createdAt(),
+                remote.confirmedAt() == null ? confirmedAt : remote.confirmedAt(),
+                remote.cancelledAt() == null ? cancelledAt : remote.cancelledAt(),
+                remote.cancellationReason() == null ? cancellationReason : remote.cancellationReason());
+    }
 }

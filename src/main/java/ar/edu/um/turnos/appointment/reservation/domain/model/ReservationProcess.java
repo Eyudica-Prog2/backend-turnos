@@ -103,6 +103,41 @@ public record ReservationProcess(
                 "CANCELLED", null, confirmRequestPayload, now);
     }
 
+    public ReservationProcess expire(Instant now) {
+        if (status.isFinal()) {
+            return this;
+        }
+        if (status != ReservationProcessStatus.HELD
+                && status != ReservationProcessStatus.WAITING_FOR_PHONE
+                && status != ReservationProcessStatus.REJECTED_RETRYABLE) {
+            throw new IllegalStateException("Only an expirable reservation process can be expired.");
+        }
+        return copy(id, reservationProcessId, holdId, patientFirstName, patientLastName,
+                ReservationProcessStatus.EXPIRED, expiresAt, requestEventId, reservationId,
+                "HOLD_EXPIRED", null, confirmRequestPayload, now);
+    }
+
+    public ReservationProcess reconcileWithRemote(String remoteStatus, Long remoteReservationId,
+                                                   String firstName, String lastName, Instant now) {
+        if (status.isFinal()) {
+            return this;
+        }
+        ReservationProcessStatus reconciledStatus = switch (remoteStatus) {
+            case "PHONE_PENDING" -> ReservationProcessStatus.WAITING_FOR_PHONE;
+            case "CONFIRMED" -> ReservationProcessStatus.CONFIRMED;
+            case "CANCELLED" -> ReservationProcessStatus.CANCELLED;
+            case "FAILED" -> ReservationProcessStatus.INVALID;
+            default -> throw new IllegalArgumentException("Unsupported remote reservation status.");
+        };
+        String reconciledResult = "FAILED".equals(remoteStatus) ? "REMOTE_RESERVATION_FAILED" : remoteStatus;
+        return copy(id, reservationProcessId, holdId,
+                firstName == null ? patientFirstName : firstName,
+                lastName == null ? patientLastName : lastName,
+                reconciledStatus, expiresAt, requestEventId,
+                remoteReservationId == null ? reservationId : remoteReservationId,
+                reconciledResult, null, confirmRequestPayload, now);
+    }
+
     public ReservationProcess apply(ReservationEvent event, Instant now) {
         if ("AppointmentCancelled".equals(event.eventType())) {
             return status == ReservationProcessStatus.CONFIRMED ? cancelled(now) : this;
