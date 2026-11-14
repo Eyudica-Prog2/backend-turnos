@@ -41,6 +41,17 @@ server:
 
 app:
   time-zone: ${APP_TIME_ZONE:UTC}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  reservation:
+    reconciliation:
+      enabled: ${APP_RESERVATION_RECONCILIATION_ENABLED:true}
+      initial-delay-ms: ${APP_RESERVATION_RECONCILIATION_INITIAL_DELAY_MS:30000}
+      fixed-delay-ms: ${APP_RESERVATION_RECONCILIATION_FIXED_DELAY_MS:300000}
+      retry-backoff-ms: ${APP_RESERVATION_RECONCILIATION_RETRY_BACKOFF_MS:60000}
+      batch-size: ${APP_RESERVATION_RECONCILIATION_BATCH_SIZE:50}
+      page-size: ${APP_RESERVATION_RECONCILIATION_PAGE_SIZE:100}
+      max-pages: ${APP_RESERVATION_RECONCILIATION_MAX_PAGES:10}
   jwt:
     # Must match the key used by backend-catalogo to issue user tokens.
     secret: ${APP_JWT_SECRET}
