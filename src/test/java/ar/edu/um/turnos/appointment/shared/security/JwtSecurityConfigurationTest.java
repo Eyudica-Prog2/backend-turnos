@@ -1,6 +1,7 @@
 package ar.edu.um.turnos.appointment.shared.security;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,15 +20,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @WebMvcTest(
         controllers = JwtSecurityConfigurationTest.SecurityProbeController.class,
-        properties = "app.jwt.secret=test-only-shared-secret-with-32-bytes-minimum")
+        properties = {"app.jwt.secret=test-only-shared-secret-with-32-bytes-minimum",
+                "app.cors.allowed-origins=http://localhost:3000"})
 @Import({
         JwtSecurityConfiguration.class,
+        CorsConfig.class,
         AuthenticatedUserProvider.class,
         JwtSecurityConfigurationTest.SecurityProbeController.class
 })
@@ -43,6 +47,27 @@ class JwtSecurityConfigurationTest {
     void rejectsRequestsWithoutBearerToken() throws Exception {
         mockMvc.perform(get("/test/security/identity"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void allowsConfiguredCorsOriginAndExposesPaginationHeaders() throws Exception {
+        mockMvc.perform(options("/test/security/identity")
+                        .header(HttpHeaders.ORIGIN, "http://localhost:3000")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "http://localhost:3000"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
+                                org.hamcrest.Matchers.containsString("X-Total-Count")));
+    }
+
+    @Test
+    void rejectsCorsOriginThatIsNotConfigured() throws Exception {
+        mockMvc.perform(options("/test/security/identity")
+                        .header(HttpHeaders.ORIGIN, "https://untrusted.example")
+                        .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET"))
+                .andExpect(status().isForbidden());
     }
 
     @Test
