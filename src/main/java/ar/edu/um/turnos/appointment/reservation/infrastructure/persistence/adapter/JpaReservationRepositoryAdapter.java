@@ -2,18 +2,34 @@ package ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.adap
 
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entity.ReservationEntity;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entity.ReservationProcessEntity;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.mapper.ReservationMapper;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.repository.JpaProcessedEventRepository;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.repository.JpaReservationProcessRepository;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.repository.JpaReservationRepository;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class JpaReservationRepositoryAdapter implements ReservationRepository {
+
+    private static final List<ReservationProcessStatus> PENDING_STATUSES = List.of(
+            ReservationProcessStatus.CREATED,
+            ReservationProcessStatus.HELD,
+            ReservationProcessStatus.WAITING_FOR_PHONE,
+            ReservationProcessStatus.REJECTED_RETRYABLE);
+
+    private static final List<ReservationProcessStatus> EXPIRABLE_STATUSES = List.of(
+            ReservationProcessStatus.HELD,
+            ReservationProcessStatus.WAITING_FOR_PHONE,
+            ReservationProcessStatus.REJECTED_RETRYABLE);
 
     private final JpaReservationProcessRepository processRepository;
     private final JpaReservationRepository reservationRepository;
@@ -40,6 +56,20 @@ public class JpaReservationRepositoryAdapter implements ReservationRepository {
     @Transactional(readOnly = true)
     public Optional<ReservationProcess> findProcess(String reservationProcessId) {
         return processRepository.findByReservationProcessId(reservationProcessId).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public long countPendingProcesses() {
+        return processRepository.countByStatusIn(PENDING_STATUSES);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationProcess> findExpiredProcesses(Instant expiredAt, Instant lastAttemptBefore, int limit) {
+        return processRepository.findByStatusInAndExpiresAtLessThanEqualAndUpdatedAtLessThanEqualOrderByExpiresAtAsc(
+                        EXPIRABLE_STATUSES, expiredAt, lastAttemptBefore, PageRequest.of(0, limit))
+                .stream().map(mapper::toDomain).toList();
     }
 
     @Override
@@ -70,6 +100,66 @@ public class JpaReservationRepositoryAdapter implements ReservationRepository {
             processRepository.save(mapper.toEntity(process));
         }
         reservationRepository.save(mapper.toEntity(reservation));
+    }
+
+    @Override
+    @Transactional
+    public boolean completeRecovery(ReservationProcess expected, ReservationProcess updated,
+                                    Reservation remoteReservation, boolean failLocalReservation) {
+        ReservationProcessEntity currentEntity = processRepository.findByIdForUpdate(expected.id()).orElse(null);
+        if (!matchesRecoveryCandidate(currentEntity, expected, updated.updatedAt())) {
+            return false;
+        }
+
+        ReservationProcess current = mapper.toDomain(currentEntity);
+        if (!current.ownerPublicId().equals(expected.ownerPublicId())) {
+            return false;
+        }
+        ReservationEntity existingEntity = reservationRepository.findByProcessIdForUpdate(current.id())
+                .orElse(null);
+        Reservation existing = existingEntity == null ? null : mapper.toDomain(existingEntity);
+        if (existing != null && !existing.ownerPublicId().equals(current.ownerPublicId())) {
+            return false;
+        }
+
+        processRepository.save(mapper.toEntity(updated));
+        if (remoteReservation != null) {
+            Reservation reconciled = existing == null
+                    ? remoteReservation.withProcessContext(current.id())
+                    : existing.reconcileFromRemote(remoteReservation, current.id());
+            reservationRepository.save(mapper.toEntity(reconciled));
+        } else if (failLocalReservation && existing != null) {
+            reservationRepository.save(mapper.toEntity(existing.failed()));
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean deferRecovery(ReservationProcess expected, String safeErrorCode, Instant attemptedAt) {
+        ReservationProcessEntity currentEntity = processRepository.findByIdForUpdate(expected.id()).orElse(null);
+        if (!matchesRecoveryCandidate(currentEntity, expected, attemptedAt)) {
+            return false;
+        }
+        ReservationProcess current = mapper.toDomain(currentEntity);
+        if (!current.ownerPublicId().equals(expected.ownerPublicId())) {
+            return false;
+        }
+        processRepository.save(mapper.toEntity(current.withLastError(safeErrorCode, attemptedAt)));
+        return true;
+    }
+
+    private static boolean matchesRecoveryCandidate(ReservationProcessEntity current,
+                                                    ReservationProcess expected, Instant attemptedAt) {
+        if (current == null || !expected.id().equals(current.getId())
+                || current.getStatus() != expected.status()
+                || !expected.updatedAt().equals(current.getUpdatedAt())
+                || current.getExpiresAt() == null || current.getExpiresAt().isAfter(attemptedAt)) {
+            return false;
+        }
+        return current.getStatus() == ReservationProcessStatus.HELD
+                || current.getStatus() == ReservationProcessStatus.WAITING_FOR_PHONE
+                || current.getStatus() == ReservationProcessStatus.REJECTED_RETRYABLE;
     }
 
     @Override

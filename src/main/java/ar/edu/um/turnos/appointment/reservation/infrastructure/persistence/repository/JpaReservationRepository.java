@@ -4,6 +4,8 @@ import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entit
 import java.util.Optional;
 import java.time.Instant;
 import org.springframework.data.jpa.repository.Modifying;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +17,10 @@ public interface JpaReservationRepository extends JpaRepository<ReservationEntit
     Optional<ReservationEntity> findByReservationId(Long reservationId);
 
     Optional<ReservationEntity> findByReservationProcessId(String reservationProcessId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select reservation from ReservationEntity reservation where reservation.processId = :processId")
+    Optional<ReservationEntity> findByProcessIdForUpdate(@Param("processId") Long processId);
 
     @Modifying
     @Query(value = "UPDATE reservation r SET patient_phone = :phone, "

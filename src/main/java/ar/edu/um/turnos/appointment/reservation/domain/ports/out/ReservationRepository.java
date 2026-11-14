@@ -3,6 +3,7 @@ package ar.edu.um.turnos.appointment.reservation.domain.ports.out;
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepository {
@@ -11,6 +12,10 @@ public interface ReservationRepository {
 
     Optional<ReservationProcess> findProcess(String reservationProcessId);
 
+    long countPendingProcesses();
+
+    List<ReservationProcess> findExpiredProcesses(Instant expiredAt, Instant lastAttemptBefore, int limit);
+
     void deleteProcess(Long id);
 
     Reservation saveReservation(Reservation reservation);
@@ -18,6 +23,11 @@ public interface ReservationRepository {
     void saveConfirmation(ReservationProcess process, Reservation reservation);
 
     void saveCancellation(ReservationProcess process, Reservation reservation);
+
+    boolean completeRecovery(ReservationProcess expected, ReservationProcess updated,
+                             Reservation remoteReservation, boolean failLocalReservation);
+
+    boolean deferRecovery(ReservationProcess expected, String safeErrorCode, Instant attemptedAt);
 
     Optional<Reservation> findReservationByProcessId(Long processId);
 
