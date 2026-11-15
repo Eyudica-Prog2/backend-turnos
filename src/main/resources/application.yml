@@ -32,6 +32,9 @@ spring:
 
 server:
   port: ${SERVER_PORT:8082}
+  # Production TLS terminates at the trusted ingress/reverse proxy; trust forwarded headers
+  # only when the service is reachable exclusively through that proxy/private network.
+  forward-headers-strategy: framework
   error:
     whitelabel:
       enabled: false
@@ -55,6 +58,11 @@ app:
   jwt:
     # Must match the key used by backend-catalogo to issue user tokens.
     secret: ${APP_JWT_SECRET}
+  kafka:
+    listener:
+      # Re-fetch the assigned integration and recover a stopped consumer at a bounded cadence.
+      recovery-initial-delay-ms: ${APP_KAFKA_LISTENER_RECOVERY_INITIAL_DELAY_MS:30000}
+      recovery-fixed-delay-ms: ${APP_KAFKA_LISTENER_RECOVERY_FIXED_DELAY_MS:30000}
 
 catedra:
   api:

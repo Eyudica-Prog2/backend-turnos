@@ -4,21 +4,12 @@ import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
 import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
 import jakarta.annotation.PreDestroy;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.kafka.clients.CommonClientConfigs;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.AcknowledgingMessageListener;
-import org.springframework.kafka.listener.CommonContainerStoppingErrorHandler;
-import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.MessageListenerContainer;
-import org.springframework.kafka.listener.KafkaMessageListenerContainer;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,66 +19,86 @@ public class ReservationKafkaListenerManager implements ApplicationRunner {
 
     private final ReservationKafkaConfigurationGateway integrationGateway;
     private final ReservationKafkaEventConsumer eventConsumer;
+    private final ReservationKafkaListenerFactory listenerFactory;
     private volatile MessageListenerContainer listenerContainer;
 
     public ReservationKafkaListenerManager(ReservationKafkaConfigurationGateway integrationGateway,
-                                           ReservationKafkaEventConsumer eventConsumer) {
+                                           ReservationKafkaEventConsumer eventConsumer,
+                                           ReservationKafkaListenerFactory listenerFactory) {
         this.integrationGateway = integrationGateway;
         this.eventConsumer = eventConsumer;
+        this.listenerFactory = listenerFactory;
     }
 
     @Override
     public void run(ApplicationArguments args) {
+        ensureStarted("startup");
+    }
+
+    /**
+     * Retries integration discovery after startup failures and replaces containers stopped
+     * by a processing exception. Kafka's own network client continues reconnecting while an
+     * existing container remains active; this tick deals with failures that stopped it.
+     */
+    @Scheduled(initialDelayString = "${app.kafka.listener.recovery-initial-delay-ms:30000}",
+            fixedDelayString = "${app.kafka.listener.recovery-fixed-delay-ms:30000}")
+    public void recoverListener() {
+        ensureStarted("scheduled-recovery");
+    }
+
+    synchronized void ensureStarted(String trigger) {
+        MessageListenerContainer current = listenerContainer;
+        if (current != null && current.isRunning()) {
+            return;
+        }
+        if (current != null) {
+            LOGGER.warn("Reservation Kafka consumer stopped; recreating it on recovery trigger {}.", trigger);
+            current.stop();
+            listenerContainer = null;
+        }
+
         try {
             ReservationKafkaConfiguration integration = integrationGateway.currentConfiguration();
             if (!integration.provisioned()) {
-                LOGGER.warn("Reservation Kafka consumer was not started: catedra integration is not provisioned.");
+                LOGGER.warn("Reservation Kafka consumer is not provisioned; next recovery trigger is {}.", trigger);
                 return;
             }
-            start(integration);
+            if (isBlank(integration.groupId()) || isBlank(integration.bootstrapServers())
+                    || isBlank(integration.consumerGroupId()) || isBlank(integration.actionsTopic())) {
+                LOGGER.warn("Reservation Kafka consumer configuration is incomplete; next recovery trigger is {}.",
+                        trigger);
+                return;
+            }
+
+            eventConsumer.setExpectedGroupId(integration.groupId());
+            MessageListenerContainer next = listenerFactory.create(integration, eventConsumer);
+            try {
+                next.start();
+                listenerContainer = next;
+                LOGGER.info("Reservation Kafka consumer started for configured actions topic; trigger={}", trigger);
+            } catch (RuntimeException startFailure) {
+                next.stop();
+                throw startFailure;
+            }
         } catch (CatedraClientException unavailable) {
-            LOGGER.warn("Reservation Kafka consumer was not started: integration lookup failed with code {}.",
-                    unavailable.getCode());
+            LOGGER.warn("Reservation Kafka consumer is unavailable; trigger={}, code={}.",
+                    trigger, unavailable.getCode());
+        } catch (RuntimeException failure) {
+            LOGGER.error("Reservation Kafka consumer could not start; trigger={}, type={}; it will be retried.",
+                    trigger, failure.getClass().getSimpleName());
         }
     }
 
-    synchronized void start(ReservationKafkaConfiguration integration) {
-        if (listenerContainer != null || integration.bootstrapServers() == null
-                || integration.bootstrapServers().isBlank()
-                || integration.actionsTopic() == null
-                || integration.actionsTopic().isBlank()) {
-            return;
-        }
-        eventConsumer.setExpectedGroupId(integration.groupId());
-
-        Map<String, Object> consumerProperties = new HashMap<>();
-        consumerProperties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, integration.bootstrapServers());
-        consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, integration.consumerGroupId());
-        consumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        consumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        consumerProperties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        consumerProperties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
-        ContainerProperties containerProperties = new ContainerProperties(integration.actionsTopic());
-        containerProperties.setAckMode(ContainerProperties.AckMode.MANUAL);
-        containerProperties.setMessageListener((AcknowledgingMessageListener<String, String>) (record, acknowledgement) -> {
-            eventConsumer.consume(record.key(), record.value());
-            acknowledgement.acknowledge();
-        });
-        KafkaMessageListenerContainer<String, String> container = new KafkaMessageListenerContainer<>(
-                new DefaultKafkaConsumerFactory<>(consumerProperties), containerProperties);
-        container.setCommonErrorHandler(new CommonContainerStoppingErrorHandler());
-        container.setBeanName("reservation-actions-kafka-listener");
-        container.start();
-        listenerContainer = container;
-        LOGGER.info("Reservation Kafka consumer started for configured actions topic.");
+    private static boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     @PreDestroy
-    public void stop() {
+    public synchronized void stop() {
         MessageListenerContainer container = listenerContainer;
         if (container != null) {
             container.stop();
+            listenerContainer = null;
         }
     }
 }
