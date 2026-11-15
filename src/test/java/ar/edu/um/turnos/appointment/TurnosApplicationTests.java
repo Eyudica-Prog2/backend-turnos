@@ -6,6 +6,10 @@ import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.RecoverReservationProcessesUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -16,12 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest
+@SpringBootTest(properties = "app.reservation.reconciliation.enabled=false")
 class TurnosApplicationTests {
 
     @Container
@@ -29,6 +34,12 @@ class TurnosApplicationTests {
 
     @Autowired
     private ReservationRepository reservations;
+
+    @Autowired
+    private RecoverReservationProcessesUseCase recoverReservationProcesses;
+
+    @MockitoBean
+    private AppointmentListingGateway appointmentListing;
 
     @DynamicPropertySource
     static void registerDataSourceProperties(DynamicPropertyRegistry registry) {
@@ -65,6 +76,31 @@ class TurnosApplicationTests {
         assertThat(process.status()).isEqualTo(ReservationProcessStatus.CREATED);
         assertThat(reservations.registerEventIfNew("event-test-1", "AdditionalInformationRequested", now)).isTrue();
         assertThat(reservations.registerEventIfNew("event-test-1", "AdditionalInformationRequested", now)).isFalse();
+    }
+
+    @Test
+    void recoversAnExpiredPersistedProcessAfterAServiceRestart() {
+        Instant old = Instant.now().minusSeconds(300);
+        UUID owner = UUID.randomUUID();
+        ReservationProcess process = reservations.saveProcess(ReservationProcess.created(
+                        owner, 15, LocalDate.parse("2027-01-04"), LocalTime.parse("09:00"),
+                        LocalTime.parse("09:30"), "Ana", "Gomez", "{}", old)
+                .held("process-recovery-test", "hold-recovery-test", old.plusSeconds(60), "{}", old));
+        reservations.saveReservation(new Reservation(null, process.id(), null, "process-recovery-test",
+                owner, owner.toString(), 15, process.appointmentDate(), process.startTime(), process.endTime(),
+                "Ana", "Gomez", "Juan", "Perez", null, PhoneSubmissionStatus.NOT_SENT, null,
+                "PHONE_PENDING", old, null, null, null));
+        org.mockito.Mockito.when(appointmentListing.list(org.mockito.ArgumentMatchers.eq(owner),
+                        org.mockito.ArgumentMatchers.any(ReservationQuery.class)))
+                .thenReturn(new AppointmentListingPage(java.util.List.of(), 0, null));
+
+        var report = recoverReservationProcesses.reconcileExpiredProcesses();
+
+        assertThat(report.expired()).isEqualTo(1);
+        assertThat(reservations.findProcess("process-recovery-test"))
+                .get().extracting(ReservationProcess::status).isEqualTo(ReservationProcessStatus.EXPIRED);
+        assertThat(reservations.findReservationByProcessId(process.id()))
+                .get().extracting(Reservation::status).isEqualTo("FAILED");
     }
 
     @Test

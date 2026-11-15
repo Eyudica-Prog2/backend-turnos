@@ -42,3 +42,9 @@ Ejecutar `./mvnw test`. La prueba de contexto usa PostgreSQL con Testcontainers;
 `GET /api/reservations?status=CONFIRMED&from=2026-10-01&to=2026-10-31&page=0&size=20` consulta la cuenta técnica de cátedra y sincroniza la página solicitada en la base local. El paciente se obtiene exclusivamente del claim `publicId` del JWT; no se acepta `externalPatientId` como filtro del cliente. La respuesta solo incluye reservas asociadas a ese usuario, propaga `X-Total-Count` y entrega enlaces `Link` apuntando a este backend. El teléfono del paciente no se expone en la respuesta.
 
 `POST /api/reservations/{reservationProcessId}/cancel` cancela una reserva confirmada del usuario autenticado. El body es opcional (`{"reason":"..."}`; hasta 500 caracteres). Las reservas inexistentes y ajenas responden igual (`404 RESERVATION_NOT_FOUND`); una reserva ya cancelada devuelve su estado sin repetir la llamada a cátedra.
+
+## Recuperación de procesos
+
+Los procesos `HELD`, `WAITING_FOR_PHONE` y `REJECTED_RETRYABLE` se conservan en PostgreSQL y se revisan al iniciar y periódicamente. Si `expiresAt` ya pasó, el backend consulta primero los appointments de cátedra para esa fecha y ese usuario: sincroniza un estado remoto encontrado o cierra localmente como `EXPIRED`/`FAILED` si no existe. No repite operaciones REST con efectos. Las fallas remotas mantienen el proceso pendiente, guardan un código estable y permiten reintentar con backoff.
+
+La tarea se configura con `APP_RESERVATION_RECONCILIATION_ENABLED`, `APP_RESERVATION_RECONCILIATION_INITIAL_DELAY_MS`, `APP_RESERVATION_RECONCILIATION_FIXED_DELAY_MS`, `APP_RESERVATION_RECONCILIATION_RETRY_BACKOFF_MS`, `APP_RESERVATION_RECONCILIATION_BATCH_SIZE`, `APP_RESERVATION_RECONCILIATION_PAGE_SIZE` y `APP_RESERVATION_RECONCILIATION_MAX_PAGES`. CORS se controla con `CORS_ALLOWED_ORIGINS` (lista separada por comas; vacío por defecto).
