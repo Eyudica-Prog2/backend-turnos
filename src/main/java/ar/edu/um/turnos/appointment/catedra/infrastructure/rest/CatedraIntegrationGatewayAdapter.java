@@ -1,0 +1,62 @@
+package ar.edu.um.turnos.appointment.catedra.infrastructure.rest;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.catedra.domain.model.CatedraIntegration;
+import ar.edu.um.turnos.appointment.catedra.domain.ports.out.CatedraIntegrationGateway;
+import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.dto.CatedraIntegrationResponse;
+import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.mapper.CatedraIntegrationResponseMapper;
+import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
+import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
+
+@Component
+public class CatedraIntegrationGatewayAdapter
+        implements CatedraIntegrationGateway, ReservationKafkaConfigurationGateway {
+
+    private static final String INTEGRATION_PATH = "/api/student/integration";
+
+    private final CatedraTechnicalClient technicalClient;
+    private final ObjectMapper objectMapper;
+    private final CatedraIntegrationResponseMapper responseMapper;
+
+    public CatedraIntegrationGatewayAdapter(CatedraTechnicalClient technicalClient,
+                                            ObjectMapper objectMapper,
+                                            CatedraIntegrationResponseMapper responseMapper) {
+        this.technicalClient = technicalClient;
+        this.objectMapper = objectMapper;
+        this.responseMapper = responseMapper;
+    }
+
+    @Override
+    public CatedraIntegration fetchCurrentIntegration() {
+        String responseBody = technicalClient.get(INTEGRATION_PATH);
+        if (responseBody == null || responseBody.isBlank()) {
+            throw new CatedraClientException(
+                    "CATEDRA_INVALID_RESPONSE", 503,
+                    "The catedra integration response is empty.");
+        }
+
+        try {
+            CatedraIntegrationResponse response = objectMapper.readValue(
+                    responseBody, CatedraIntegrationResponse.class);
+            return responseMapper.toDomain(response);
+        } catch (JsonProcessingException | IllegalArgumentException failure) {
+            throw new CatedraClientException(
+                    "CATEDRA_INVALID_RESPONSE", 503,
+                    "The catedra integration response could not be parsed or is incomplete.");
+        }
+    }
+
+    @Override
+    public ReservationKafkaConfiguration currentConfiguration() {
+        CatedraIntegration integration = fetchCurrentIntegration();
+        return new ReservationKafkaConfiguration(integration.groupId(),
+                integration.kafkaBootstrapServers(), integration.kafkaConsumerGroupId(),
+                integration.kafkaAppointmentActionsTopic(), integration.kafkaAppointmentPhoneTopic(),
+                "PROVISIONED".equals(integration.provisioningStatus()));
+    }
+}

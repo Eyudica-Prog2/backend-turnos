@@ -1,0 +1,59 @@
+# Local infrastructure owned by backend-turnos.
+# PostgreSQL is intentionally separate from backend-catalogo.
+
+name: backend-turnos
+
+services:
+  turnos-db:
+    image: postgres:16-alpine
+    container_name: turnos-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-turnos}
+      POSTGRES_USER: ${DB_USER:?DB_USER is required, copy .env.example to .env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required, copy .env.example to .env}
+    ports:
+      # Local development only; databases are not exposed to the LAN.
+      - "127.0.0.1:${DB_PORT:-5434}:5432"
+    volumes:
+      - turnos-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME:-turnos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  backend-turnos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend-turnos
+    depends_on:
+      turnos-db:
+        condition: service_healthy
+    networks:
+      - default
+      - backend-integration
+    env_file:
+      - .env
+    environment:
+      DB_URL: jdbc:postgresql://turnos-db:5432/${DB_NAME:-turnos}
+      DB_USER: ${DB_USER:?DB_USER is required, copy .env.example to .env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required, copy .env.example to .env}
+      SERVER_PORT: ${SERVER_PORT:-8082}
+      # Cross-service DNS on the shared private Docker network (host-run uses .env's localhost).
+      CATALOGO_API_BASE_URL: http://backend-catalogo:8081
+    ports:
+      # Local development only. Production ingress should be attached to a private network,
+      # terminate TLS, and must not expose this HTTP port directly.
+      - "127.0.0.1:${APP_PORT:-8082}:${SERVER_PORT:-8082}"
+    restart: unless-stopped
+
+volumes:
+  turnos-db-data:
+
+networks:
+  backend-integration:
+    name: backend-integration
+    external: true

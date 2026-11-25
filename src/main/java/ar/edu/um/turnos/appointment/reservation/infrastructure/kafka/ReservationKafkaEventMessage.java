@@ -1,0 +1,79 @@
+package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
+
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.time.Instant;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+record ReservationKafkaEventMessage(
+        String eventId,
+        String eventType,
+        String groupId,
+        String reservationProcessId,
+        String holdId,
+        String requestEventId,
+        String requiredField,
+        Long reservationId,
+        Long professionalId,
+        @JsonAlias("date") String appointmentDate,
+        String startTime,
+        String status,
+        String reason,
+        String message,
+        Instant expiresAt,
+        Instant occurredAt,
+        Integer schemaVersion) {
+
+    void validateContract() {
+        // Contract section 15.4 scopes AdditionalInformationRequested by its topic and does
+        // not include groupId in the payload. Other incoming event examples carry groupId.
+        boolean groupIdRequired = !"AdditionalInformationRequested".equals(eventType);
+        if (blank(eventId) || blank(eventType) || (groupIdRequired && blank(groupId))
+                || blank(reservationProcessId)
+                || blank(holdId) || occurredAt == null || schemaVersion == null || schemaVersion != 1) {
+            throw new IllegalArgumentException("The reservation event is incomplete or has an unsupported version.");
+        }
+        switch (eventType) {
+            case "AdditionalInformationRequested" -> {
+                if (!"PHONE_NUMBER".equals(requiredField) || blank(message) || expiresAt == null) {
+                    throw new IllegalArgumentException("AdditionalInformationRequested is incomplete.");
+                }
+            }
+            case "AppointmentConfirmed" -> {
+                if (blank(requestEventId) || reservationId == null || professionalId == null
+                        || blank(appointmentDate) || blank(startTime) || !"CONFIRMED".equals(status)) {
+                    throw new IllegalArgumentException("AppointmentConfirmed is incomplete.");
+                }
+            }
+            case "AppointmentCancelled" -> {
+                if (blank(requestEventId) || reservationId == null || !"CANCELLED".equals(status)
+                        || (reason != null && reason.length() > 500)) {
+                    throw new IllegalArgumentException("AppointmentCancelled is incomplete.");
+                }
+            }
+            case "AdditionalInformationRejected" -> {
+                if (blank(requestEventId) || blank(reason) || blank(message) || expiresAt == null) {
+                    throw new IllegalArgumentException("AdditionalInformationRejected is incomplete.");
+                }
+            }
+            case "AppointmentProcessExpired", "AppointmentProcessInvalid" -> {
+                if (blank(requestEventId) || blank(reason)) {
+                    throw new IllegalArgumentException("The terminal reservation event is incomplete.");
+                }
+            }
+            default -> throw new IllegalArgumentException("Unsupported reservation event type.");
+        }
+    }
+
+    ReservationEvent toDomain() {
+        return new ReservationEvent(eventId, eventType, reservationProcessId, holdId,
+                requestEventId, reservationId, professionalId, appointmentDate, startTime,
+                status, reason, message, expiresAt, occurredAt, schemaVersion);
+    }
+
+    private static boolean blank(String value) {
+        return value == null || value.isBlank();
+    }
+}
