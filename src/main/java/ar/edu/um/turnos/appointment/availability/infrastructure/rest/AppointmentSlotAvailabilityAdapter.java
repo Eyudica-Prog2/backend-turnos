@@ -1,5 +1,11 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.rest;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.availability.domain.WeeklyScheduleSlotGenerator;
 import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
 import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
@@ -14,11 +20,6 @@ import ar.edu.um.turnos.appointment.availability.domain.ports.out.WeeklySchedule
 import ar.edu.um.turnos.appointment.shared.domain.model.AppointmentSlotAvailability;
 import ar.edu.um.turnos.appointment.shared.domain.model.SlotOccupancy;
 import ar.edu.um.turnos.appointment.shared.domain.ports.out.AppointmentSlotAvailabilityGateway;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-import org.springframework.stereotype.Component;
 
 /** Bridges the current-catalog/occupancy feature to the reservation use case via a shared port. */
 @Component

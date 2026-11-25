@@ -1,10 +1,11 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.mapper;
 
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entity.ReservationEntity;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entity.ReservationProcessEntity;
-import org.springframework.stereotype.Component;
 
 @Component
 public class ReservationMapper {

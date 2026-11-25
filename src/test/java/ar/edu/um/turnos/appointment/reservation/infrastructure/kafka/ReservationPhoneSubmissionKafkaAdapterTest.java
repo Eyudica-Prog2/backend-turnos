@@ -3,13 +3,10 @@ package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmission;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.time.Duration;
@@ -24,6 +21,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmission;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationPhoneSubmissionKafkaAdapterTest {

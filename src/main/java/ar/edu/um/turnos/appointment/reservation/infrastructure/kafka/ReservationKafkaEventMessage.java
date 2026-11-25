@@ -1,9 +1,10 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.Instant;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 record ReservationKafkaEventMessage(
@@ -26,7 +27,11 @@ record ReservationKafkaEventMessage(
         Integer schemaVersion) {
 
     void validateContract() {
-        if (blank(eventId) || blank(eventType) || blank(groupId) || blank(reservationProcessId)
+        // Contract section 15.4 scopes AdditionalInformationRequested by its topic and does
+        // not include groupId in the payload. Other incoming event examples carry groupId.
+        boolean groupIdRequired = !"AdditionalInformationRequested".equals(eventType);
+        if (blank(eventId) || blank(eventType) || (groupIdRequired && blank(groupId))
+                || blank(reservationProcessId)
                 || blank(holdId) || occurredAt == null || schemaVersion == null || schemaVersion != 1) {
             throw new IllegalArgumentException("The reservation event is incomplete or has an unsupported version.");
         }

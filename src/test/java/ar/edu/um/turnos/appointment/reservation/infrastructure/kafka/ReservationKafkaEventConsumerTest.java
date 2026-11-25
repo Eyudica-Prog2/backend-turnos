@@ -2,14 +2,15 @@ package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
 import static org.mockito.Mockito.verify;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ProcessReservationEventUseCase;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ProcessReservationEventUseCase;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationKafkaEventConsumerTest {
@@ -43,6 +44,56 @@ class ReservationKafkaEventConsumerTest {
         verify(processEvent).process(new ReservationEvent("event-1", "AppointmentConfirmed",
                 "process-1", "hold-1", "request-1", 8251L, 15L, "2026-10-26", "09:30",
                 "CONFIRMED", null, null, null, Instant.parse("2026-10-25T12:00:00Z"), 1));
+    }
+
+    @Test
+    void acceptsAdditionalInformationRequestedWithoutGroupIdAsDefinedByContractSection154() {
+        ReservationKafkaEventConsumer consumer = new ReservationKafkaEventConsumer(
+                new ObjectMapper().findAndRegisterModules(), processEvent);
+        consumer.setExpectedGroupId("project-1");
+
+        consumer.consume("process-1", """
+                {
+                  "eventId":"request-event-1",
+                  "eventType":"AdditionalInformationRequested",
+                  "reservationProcessId":"process-1",
+                  "holdId":"hold-1",
+                  "requiredField":"PHONE_NUMBER",
+                  "message":"Enter a phone number to continue.",
+                  "expiresAt":"2026-10-26T09:10:00Z",
+                  "occurredAt":"2026-10-26T09:00:00Z",
+                  "schemaVersion":1
+                }
+                """);
+
+        verify(processEvent).process(org.mockito.ArgumentMatchers.argThat(event ->
+                "request-event-1".equals(event.eventId())
+                        && "AdditionalInformationRequested".equals(event.eventType())
+                        && "process-1".equals(event.reservationProcessId())
+                        && "hold-1".equals(event.holdId())));
+    }
+
+    @Test
+    void stillRejectsAnEventThatDeclaresADifferentGroupId() {
+        ReservationKafkaEventConsumer consumer = new ReservationKafkaEventConsumer(
+                new ObjectMapper().findAndRegisterModules(), processEvent);
+        consumer.setExpectedGroupId("project-1");
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
+                () -> consumer.consume("process-1", """
+                        {
+                          "eventId":"event-1",
+                          "eventType":"AppointmentProcessExpired",
+                          "groupId":"other-project",
+                          "reservationProcessId":"process-1",
+                          "holdId":"hold-1",
+                          "requestEventId":"request-1",
+                          "reason":"HOLD_EXPIRED",
+                          "occurredAt":"2026-10-25T12:00:00Z",
+                          "schemaVersion":1
+                        }
+                        """));
+        org.mockito.Mockito.verifyNoInteractions(processEvent);
     }
 
     @Test

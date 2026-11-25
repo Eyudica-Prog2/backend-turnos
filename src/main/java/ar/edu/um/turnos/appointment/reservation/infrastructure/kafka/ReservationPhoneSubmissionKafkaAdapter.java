@@ -1,9 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmission;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionGateway;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
@@ -13,6 +9,11 @@ import java.util.concurrent.TimeoutException;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmission;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionGateway;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 
 @Component
 public class ReservationPhoneSubmissionKafkaAdapter implements PhoneSubmissionGateway {

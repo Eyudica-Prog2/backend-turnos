@@ -1,5 +1,10 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.UUID;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
 import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
@@ -10,10 +15,6 @@ import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.UUID;
-import org.springframework.stereotype.Component;
 
 @Component
 public class ListReservationsUseCaseImpl implements ListReservationsUseCase {

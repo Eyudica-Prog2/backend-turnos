@@ -4,20 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentHoldGateway;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
-import ar.edu.um.turnos.appointment.shared.domain.model.AppointmentSlotAvailability;
-import ar.edu.um.turnos.appointment.shared.domain.model.SlotOccupancy;
-import ar.edu.um.turnos.appointment.shared.domain.ports.out.AppointmentSlotAvailabilityGateway;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -30,6 +21,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentHoldGateway;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
+import ar.edu.um.turnos.appointment.shared.domain.model.AppointmentSlotAvailability;
+import ar.edu.um.turnos.appointment.shared.domain.model.SlotOccupancy;
+import ar.edu.um.turnos.appointment.shared.domain.ports.out.AppointmentSlotAvailabilityGateway;
 
 @ExtendWith(MockitoExtension.class)
 class CreateReservationUseCaseImplTest {

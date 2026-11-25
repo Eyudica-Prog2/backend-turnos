@@ -1,7 +1,8 @@
 package ar.edu.um.turnos.appointment.reservation.domain.ports.in;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import java.util.UUID;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 
 public interface CancelReservationUseCase {
 

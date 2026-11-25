@@ -1,5 +1,12 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
@@ -10,12 +17,6 @@ import ar.edu.um.turnos.appointment.reservation.domain.ports.in.RecoverReservati
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 @Component
 public class RecoverReservationProcessesUseCaseImpl implements RecoverReservationProcessesUseCase {

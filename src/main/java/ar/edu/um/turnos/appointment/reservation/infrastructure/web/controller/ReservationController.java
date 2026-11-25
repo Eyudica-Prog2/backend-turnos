@@ -1,24 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.web.controller;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CancelReservationUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CreateReservationUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationProcessUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservationPhoneUseCase;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.CreateReservationRequest;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.CancelReservationRequest;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.PhoneSubmissionResponse;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationProcessResponse;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationHoldResponse;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationResponse;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.SubmitReservationPhoneRequest;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper.ReservationDtoMapper;
-import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUser;
-import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
@@ -26,13 +7,33 @@ import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CancelReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CreateReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationProcessUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservationPhoneUseCase;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.CancelReservationRequest;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.CreateReservationRequest;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.PhoneSubmissionResponse;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationHoldResponse;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationProcessResponse;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationResponse;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.SubmitReservationPhoneRequest;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper.ReservationDtoMapper;
+import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUser;
+import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
 
 @RestController
 @RequestMapping("/api/reservations")

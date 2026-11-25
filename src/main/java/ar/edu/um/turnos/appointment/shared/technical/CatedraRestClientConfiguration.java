@@ -1,6 +1,5 @@
 package ar.edu.um.turnos.appointment.shared.technical;
 
-import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,6 +9,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
+
+import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
 
 @Configuration
 @EnableConfigurationProperties(CatedraProperties.class)

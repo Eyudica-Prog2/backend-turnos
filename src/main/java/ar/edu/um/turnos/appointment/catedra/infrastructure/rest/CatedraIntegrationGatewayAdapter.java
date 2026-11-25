@@ -1,16 +1,17 @@
 package ar.edu.um.turnos.appointment.catedra.infrastructure.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.catedra.domain.model.CatedraIntegration;
 import ar.edu.um.turnos.appointment.catedra.domain.ports.out.CatedraIntegrationGateway;
 import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.dto.CatedraIntegrationResponse;
 import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.mapper.CatedraIntegrationResponseMapper;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
 import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Component;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 
 @Component
 public class CatedraIntegrationGatewayAdapter

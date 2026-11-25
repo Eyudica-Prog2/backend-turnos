@@ -1,21 +1,11 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.web.controller;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
-import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
-import ar.edu.um.turnos.appointment.availability.domain.ports.in.GetProfessionalAvailabilityUseCase;
-import ar.edu.um.turnos.appointment.availability.infrastructure.web.mapper.AvailabilityDtoMapper;
-import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.error.ApiExceptionHandler;
-import ar.edu.um.turnos.appointment.shared.security.JwtClaims;
-import ar.edu.um.turnos.appointment.shared.security.JwtSecurityConfiguration;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -35,6 +25,17 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
+import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
+import ar.edu.um.turnos.appointment.availability.domain.ports.in.GetProfessionalAvailabilityUseCase;
+import ar.edu.um.turnos.appointment.availability.infrastructure.web.mapper.AvailabilityDtoMapper;
+import ar.edu.um.turnos.appointment.shared.error.ApiExceptionHandler;
+import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.security.JwtClaims;
+import ar.edu.um.turnos.appointment.shared.security.JwtSecurityConfiguration;
 
 @WebMvcTest(
         controllers = AvailabilityController.class,

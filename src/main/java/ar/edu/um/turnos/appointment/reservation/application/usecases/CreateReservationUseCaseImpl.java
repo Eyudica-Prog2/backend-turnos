@@ -1,5 +1,13 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
@@ -10,13 +18,6 @@ import ar.edu.um.turnos.appointment.shared.domain.model.AppointmentSlotAvailabil
 import ar.edu.um.turnos.appointment.shared.domain.model.SlotOccupancy;
 import ar.edu.um.turnos.appointment.shared.domain.ports.out.AppointmentSlotAvailabilityGateway;
 import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.UUID;
-import org.springframework.stereotype.Component;
 
 @Component
 public class CreateReservationUseCaseImpl implements CreateReservationUseCase {

@@ -3,13 +3,14 @@ package ar.edu.um.turnos.appointment.availability.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
 
 class WeeklyScheduleSlotGeneratorTest {
 

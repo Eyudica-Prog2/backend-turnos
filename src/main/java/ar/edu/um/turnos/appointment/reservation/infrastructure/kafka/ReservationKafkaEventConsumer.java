@@ -1,9 +1,10 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ProcessReservationEventUseCase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ProcessReservationEventUseCase;
 
 @Component
 public class ReservationKafkaEventConsumer {
@@ -20,12 +21,17 @@ public class ReservationKafkaEventConsumer {
 
     public void consume(String messageKey, String json) {
         try {
+            // To ReservationKafkaEventMessage
             ReservationKafkaEventMessage message = objectMapper.readValue(json, ReservationKafkaEventMessage.class);
             message.validateContract();
             if (messageKey == null || !messageKey.equals(message.reservationProcessId())) {
                 throw new IllegalArgumentException("The Kafka message key must match reservationProcessId.");
             }
-            if (expectedGroupId != null && !expectedGroupId.equals(message.groupId())) {
+            // AdditionalInformationRequested is scoped by its configured topic; contract
+            // section 15.4 does not require groupId in that event's payload. When a payload
+            // does carry groupId, still reject a message for a different technical group.
+            if (expectedGroupId != null && message.groupId() != null
+                    && !expectedGroupId.equals(message.groupId())) {
                 throw new IllegalArgumentException("The Kafka event belongs to a different technical group.");
             }
             processReservationEvent.process(message.toDomain());

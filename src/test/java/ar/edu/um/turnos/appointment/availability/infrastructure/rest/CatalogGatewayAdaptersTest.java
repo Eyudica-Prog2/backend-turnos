@@ -3,19 +3,11 @@ package ar.edu.um.turnos.appointment.availability.infrastructure.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.CatalogProfessional;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklyScheduleQuery;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogProfessionalDtoMapper;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogWeeklyScheduleDtoMapper;
-import ar.edu.um.turnos.appointment.shared.config.CatalogProperties;
-import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
-import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.http.HttpClient;
-import java.time.Duration;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -34,6 +26,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.client.RestClient;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.CatalogProfessional;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklyScheduleQuery;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogProfessionalDtoMapper;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogWeeklyScheduleDtoMapper;
+import ar.edu.um.turnos.appointment.shared.config.CatalogProperties;
+import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
+import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
 
 class CatalogGatewayAdaptersTest {
 

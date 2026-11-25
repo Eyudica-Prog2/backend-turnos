@@ -1,7 +1,5 @@
 package ar.edu.um.turnos.appointment.shared.technical;
 
-import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,6 +17,9 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
+
+import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 
 /** HTTP client for authenticated calls made with this project's technical catedra identity. */
 @Component

@@ -1,18 +1,19 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
-import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentHoldGateway;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentHoldGateway;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 
 @Component
 public class ConfirmReservationUseCaseImpl implements ConfirmReservationUseCase {

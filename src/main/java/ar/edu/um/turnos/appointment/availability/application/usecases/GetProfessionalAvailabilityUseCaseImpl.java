@@ -1,19 +1,5 @@
 package ar.edu.um.turnos.appointment.availability.application.usecases;
 
-import ar.edu.um.turnos.appointment.availability.domain.WeeklyScheduleSlotGenerator;
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
-import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
-import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
-import ar.edu.um.turnos.appointment.availability.domain.ports.in.GetProfessionalAvailabilityUseCase;
-import ar.edu.um.turnos.appointment.availability.domain.ports.out.AppointmentOccupancyGateway;
-import ar.edu.um.turnos.appointment.availability.domain.model.CatalogProfessional;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklyScheduleQuery;
-import ar.edu.um.turnos.appointment.availability.domain.ports.out.ProfessionalCatalogGateway;
-import ar.edu.um.turnos.appointment.availability.domain.ports.out.WeeklyScheduleCatalogGateway;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,6 +7,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.availability.domain.WeeklyScheduleSlotGenerator;
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
+import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.CatalogProfessional;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
+import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklyScheduleQuery;
+import ar.edu.um.turnos.appointment.availability.domain.ports.in.GetProfessionalAvailabilityUseCase;
+import ar.edu.um.turnos.appointment.availability.domain.ports.out.AppointmentOccupancyGateway;
+import ar.edu.um.turnos.appointment.availability.domain.ports.out.ProfessionalCatalogGateway;
+import ar.edu.um.turnos.appointment.availability.domain.ports.out.WeeklyScheduleCatalogGateway;
 
 @Component
 public class GetProfessionalAvailabilityUseCaseImpl implements GetProfessionalAvailabilityUseCase {
@@ -54,7 +55,6 @@ public class GetProfessionalAvailabilityUseCaseImpl implements GetProfessionalAv
         if (generatedSlots.isEmpty()) {
             return emptyAvailability(query);
         }
-
         List<AppointmentOccupancy> occupancies = appointmentOccupancyGateway.findOccupancies(
                 new OccupancyQuery(query.professionalId(), query.date(), query.date()));
         Map<OccupiedSlot, OccupancyStatus> occupiedSlots = new HashMap<>();

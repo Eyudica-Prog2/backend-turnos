@@ -1,11 +1,12 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.scheduling;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationRecoveryPolicy;
 import java.time.Duration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationRecoveryPolicy;
 
 @Configuration
 @EnableScheduling

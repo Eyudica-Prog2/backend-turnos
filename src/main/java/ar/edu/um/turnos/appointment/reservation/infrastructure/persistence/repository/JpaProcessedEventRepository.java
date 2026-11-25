@@ -1,11 +1,12 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.repository;
 
-import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entity.ProcessedEventEntity;
 import java.time.Instant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entity.ProcessedEventEntity;
 
 public interface JpaProcessedEventRepository extends JpaRepository<ProcessedEventEntity, String> {
 

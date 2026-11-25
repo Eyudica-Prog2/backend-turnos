@@ -2,29 +2,12 @@ package ar.edu.um.turnos.appointment.reservation.infrastructure.web.controller;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CreateReservationUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationProcessUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservationPhoneUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionResult;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessDetails;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationPage;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CancelReservationUseCase;
-import ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper.ReservationDtoMapper;
-import ar.edu.um.turnos.appointment.shared.error.ApiExceptionHandler;
-import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
-import ar.edu.um.turnos.appointment.shared.security.JwtClaims;
-import ar.edu.um.turnos.appointment.shared.security.JwtSecurityConfiguration;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -44,6 +27,24 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionResult;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationPage;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessDetails;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CancelReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ConfirmReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CreateReservationUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationProcessUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ListReservationsUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservationPhoneUseCase;
+import ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper.ReservationDtoMapper;
+import ar.edu.um.turnos.appointment.shared.error.ApiExceptionHandler;
+import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
+import ar.edu.um.turnos.appointment.shared.security.JwtClaims;
+import ar.edu.um.turnos.appointment.shared.security.JwtSecurityConfiguration;
 
 @WebMvcTest(controllers = ReservationController.class,
         properties = "app.jwt.secret=test-only-shared-secret-with-32-bytes-minimum")

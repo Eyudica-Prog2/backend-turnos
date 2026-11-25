@@ -1,6 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.entity;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +12,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
 
 @Entity
 @Table(name = "reservation_process")

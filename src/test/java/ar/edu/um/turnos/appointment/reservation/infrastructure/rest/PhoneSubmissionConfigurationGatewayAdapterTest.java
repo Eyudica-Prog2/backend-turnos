@@ -4,14 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
-import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
+import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
+import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 
 @ExtendWith(MockitoExtension.class)
 class PhoneSubmissionConfigurationGatewayAdapterTest {

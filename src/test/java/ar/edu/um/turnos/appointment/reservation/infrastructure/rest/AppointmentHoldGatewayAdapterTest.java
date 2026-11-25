@@ -7,10 +7,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,6 +16,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 
 @ExtendWith(MockitoExtension.class)
 class AppointmentHoldGatewayAdapterTest {

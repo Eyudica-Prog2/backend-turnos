@@ -1,10 +1,11 @@
 package ar.edu.um.turnos.appointment.reservation.domain.ports.out;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 
 public interface ReservationRepository {
 

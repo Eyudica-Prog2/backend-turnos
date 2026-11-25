@@ -1,11 +1,12 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.CatalogWeeklyScheduleResponse;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.CatalogWeeklyScheduleResponse;
 
 @Component
 public class CatalogWeeklyScheduleDtoMapper {

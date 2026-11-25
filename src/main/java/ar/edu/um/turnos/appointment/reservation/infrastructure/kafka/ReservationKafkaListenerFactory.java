@@ -1,6 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
-import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -13,6 +12,8 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
 
 /** Creates the infrastructure container for the configured reservation-actions topic. */
 @Component

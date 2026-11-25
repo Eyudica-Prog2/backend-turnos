@@ -1,8 +1,9 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.web.mapper;
 
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
 import ar.edu.um.turnos.appointment.availability.infrastructure.web.dto.ProfessionalAvailabilityResponse;
-import org.springframework.stereotype.Component;
 
 @Component
 public class AvailabilityDtoMapper {

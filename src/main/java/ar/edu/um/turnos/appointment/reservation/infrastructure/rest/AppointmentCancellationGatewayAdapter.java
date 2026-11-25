@@ -1,15 +1,16 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.rest;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentCancellationResult;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentCancellationGateway;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentCancellationResult;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentCancellationGateway;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 
 @Component
 public class AppointmentCancellationGatewayAdapter implements AppointmentCancellationGateway {

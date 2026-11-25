@@ -1,14 +1,15 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.AppointmentOccupanciesResponse;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.AppointmentOccupanciesResponse.OccupancyResponse;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.AppointmentOccupanciesResponse.OccupancyResponse;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.AppointmentOccupanciesResponse;
 
 @Component
 public class AppointmentOccupancyDtoMapper {

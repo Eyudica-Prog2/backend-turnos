@@ -1,7 +1,8 @@
 package ar.edu.um.turnos.appointment.reservation.domain.ports.in;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
 import java.util.UUID;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationConfirmResult;
 
 public interface ConfirmReservationUseCase {
 

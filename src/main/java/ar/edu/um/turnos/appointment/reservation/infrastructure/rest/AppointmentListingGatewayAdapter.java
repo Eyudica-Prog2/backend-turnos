@@ -1,13 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.rest;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
-import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,6 +15,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalResponse;
 
 @Component
 public class AppointmentListingGatewayAdapter implements AppointmentListingGateway {

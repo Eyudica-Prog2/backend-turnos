@@ -1,13 +1,14 @@
 package ar.edu.um.turnos.appointment.availability.domain;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentSlot;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
 
 /** Pure domain function: expands enabled weekly schedules into appointment start/end slots. */
 public final class WeeklyScheduleSlotGenerator {

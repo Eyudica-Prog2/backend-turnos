@@ -4,24 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmission;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionConfigurationGateway;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionGateway;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -35,6 +24,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmission;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionConfigurationGateway;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionGateway;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 
 @ExtendWith(MockitoExtension.class)
 class SubmitReservationPhoneUseCaseImplTest {

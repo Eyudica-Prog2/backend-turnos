@@ -1,6 +1,5 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.rest;
 
-import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +11,8 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
+
+import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
 
 @Component
 public class CatalogRestClientSupport {

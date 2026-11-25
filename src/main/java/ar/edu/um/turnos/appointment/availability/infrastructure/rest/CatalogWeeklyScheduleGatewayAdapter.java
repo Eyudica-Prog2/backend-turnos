@@ -1,16 +1,17 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.rest;
 
+import java.time.DateTimeException;
+import java.util.List;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
 import ar.edu.um.turnos.appointment.availability.domain.model.WeeklyScheduleQuery;
 import ar.edu.um.turnos.appointment.availability.domain.ports.out.WeeklyScheduleCatalogGateway;
 import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.CatalogWeeklyScheduleResponse;
 import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogWeeklyScheduleDtoMapper;
 import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
-import java.time.DateTimeException;
-import java.util.List;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class CatalogWeeklyScheduleGatewayAdapter implements WeeklyScheduleCatalogGateway {

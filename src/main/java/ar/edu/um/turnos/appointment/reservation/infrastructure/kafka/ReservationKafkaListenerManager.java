@@ -1,8 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
-import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +8,10 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
+import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 
 @Component
 public class ReservationKafkaListenerManager implements ApplicationRunner {

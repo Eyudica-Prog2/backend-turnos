@@ -1,18 +1,19 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
-import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ProcessReservationEventUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationEvent;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.ProcessReservationEventUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 
 @Component
 public class ProcessReservationEventUseCaseImpl implements ProcessReservationEventUseCase {

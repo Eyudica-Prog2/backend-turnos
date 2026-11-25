@@ -1,13 +1,14 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
+import java.util.UUID;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessDetails;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.in.GetReservationProcessUseCase;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
-import java.util.UUID;
-import org.springframework.stereotype.Component;
 
 @Component
 public class GetReservationProcessUseCaseImpl implements GetReservationProcessUseCase {

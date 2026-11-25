@@ -2,21 +2,12 @@ package ar.edu.um.turnos.appointment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.RecoverReservationProcessesUseCase;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -24,6 +15,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.RecoverReservationProcessesUseCase;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 
 @Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest(properties = "app.reservation.reconciliation.enabled=false")

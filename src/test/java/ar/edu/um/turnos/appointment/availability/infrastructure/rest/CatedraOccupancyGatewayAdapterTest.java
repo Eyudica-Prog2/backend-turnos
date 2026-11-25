@@ -3,14 +3,6 @@ package ar.edu.um.turnos.appointment.availability.infrastructure.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.AppointmentOccupanciesResponse;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.AppointmentOccupancyDtoMapper;
-import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -29,6 +21,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.AppointmentOccupanciesResponse;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.AppointmentOccupancyDtoMapper;
+import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 
 class CatedraOccupancyGatewayAdapterTest {
 

@@ -1,9 +1,10 @@
 package ar.edu.um.turnos.appointment.catedra.infrastructure.rest.mapper;
 
-import ar.edu.um.turnos.appointment.catedra.domain.model.CatedraIntegration;
-import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.dto.CatedraIntegrationResponse;
 import java.util.Set;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.catedra.domain.model.CatedraIntegration;
+import ar.edu.um.turnos.appointment.catedra.infrastructure.rest.dto.CatedraIntegrationResponse;
 
 @Component
 public class CatedraIntegrationResponseMapper {

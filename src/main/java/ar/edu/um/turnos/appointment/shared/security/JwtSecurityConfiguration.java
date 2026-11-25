@@ -1,6 +1,5 @@
 package ar.edu.um.turnos.appointment.shared.security;
 
-import ar.edu.um.turnos.appointment.shared.config.JwtProperties;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.UUID;
@@ -25,6 +24,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import ar.edu.um.turnos.appointment.shared.config.JwtProperties;
 
 @Configuration
 @EnableWebSecurity

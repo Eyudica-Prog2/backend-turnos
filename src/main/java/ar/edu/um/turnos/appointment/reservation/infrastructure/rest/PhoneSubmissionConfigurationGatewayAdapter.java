@@ -1,11 +1,12 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.rest;
 
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionConfigurationGateway;
 import ar.edu.um.turnos.appointment.shared.domain.model.ReservationKafkaConfiguration;
 import ar.edu.um.turnos.appointment.shared.domain.ports.out.ReservationKafkaConfigurationGateway;
 import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import org.springframework.stereotype.Component;
 
 @Component
 public class PhoneSubmissionConfigurationGatewayAdapter implements PhoneSubmissionConfigurationGateway {

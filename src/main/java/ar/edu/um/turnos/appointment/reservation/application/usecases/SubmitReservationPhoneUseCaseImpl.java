@@ -1,5 +1,11 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
+import java.time.Clock;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmission;
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
@@ -12,11 +18,6 @@ import ar.edu.um.turnos.appointment.reservation.domain.ports.in.SubmitReservatio
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionConfigurationGateway;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.PhoneSubmissionGateway;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
-import java.time.Clock;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.regex.Pattern;
-import org.springframework.stereotype.Component;
 
 @Component
 public class SubmitReservationPhoneUseCaseImpl implements SubmitReservationPhoneUseCase {

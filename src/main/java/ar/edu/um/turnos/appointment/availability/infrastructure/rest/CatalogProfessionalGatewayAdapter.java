@@ -1,12 +1,13 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.rest;
 
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.availability.domain.model.CatalogProfessional;
 import ar.edu.um.turnos.appointment.availability.domain.ports.out.ProfessionalCatalogGateway;
 import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.CatalogProfessionalResponse;
 import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogProfessionalDtoMapper;
 import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
 import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
-import org.springframework.stereotype.Component;
 
 @Component
 public class CatalogProfessionalGatewayAdapter implements ProfessionalCatalogGateway {
@@ -35,6 +36,7 @@ public class CatalogProfessionalGatewayAdapter implements ProfessionalCatalogGat
                 authenticatedUserProvider.currentToken(),
                 CatalogProfessionalResponse.class);
         try {
+            // To CatalogProfessional
             return dtoMapper.toDomain(response);
         } catch (IllegalArgumentException failure) {
             throw CatalogRestClientSupport.invalidResponse();

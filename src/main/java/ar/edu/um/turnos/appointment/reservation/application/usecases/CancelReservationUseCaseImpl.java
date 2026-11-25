@@ -1,5 +1,8 @@
 package ar.edu.um.turnos.appointment.reservation.application.usecases;
 
+import java.util.UUID;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
 import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentCancellationResult;
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
@@ -9,8 +12,6 @@ import ar.edu.um.turnos.appointment.reservation.domain.ports.in.CancelReservatio
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentCancellationGateway;
 import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
 import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import java.util.UUID;
-import org.springframework.stereotype.Component;
 
 @Component
 public class CancelReservationUseCaseImpl implements CancelReservationUseCase {

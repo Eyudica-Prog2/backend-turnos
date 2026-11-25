@@ -1,5 +1,12 @@
 package ar.edu.um.turnos.appointment.availability.infrastructure.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.DateTimeException;
+import java.util.List;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
 import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
 import ar.edu.um.turnos.appointment.availability.domain.ports.out.AppointmentOccupancyGateway;
@@ -7,12 +14,6 @@ import ar.edu.um.turnos.appointment.availability.infrastructure.rest.dto.Appoint
 import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.AppointmentOccupancyDtoMapper;
 import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.DateTimeException;
-import java.util.List;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class CatedraOccupancyGatewayAdapter implements AppointmentOccupancyGateway {

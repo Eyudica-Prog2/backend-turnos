@@ -1,6 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.kafka;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -8,6 +7,8 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionConfiguration;
 
 @Component
 class DefaultPhoneSubmissionKafkaProducerFactory implements PhoneSubmissionKafkaProducerFactory {

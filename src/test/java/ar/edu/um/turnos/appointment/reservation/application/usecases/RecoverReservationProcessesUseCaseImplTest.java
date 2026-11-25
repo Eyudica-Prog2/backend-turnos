@@ -8,16 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
-import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationRecoveryPolicy;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -32,6 +22,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.AppointmentListingPage;
+import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationQuery;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationRecoveryPolicy;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.AppointmentListingGateway;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.out.ReservationRepository;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
 
 @ExtendWith(MockitoExtension.class)
 class RecoverReservationProcessesUseCaseImplTest {

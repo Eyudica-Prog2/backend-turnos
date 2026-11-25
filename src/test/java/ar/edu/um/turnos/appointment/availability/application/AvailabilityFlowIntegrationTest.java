@@ -3,22 +3,6 @@ package ar.edu.um.turnos.appointment.availability.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
-import ar.edu.um.turnos.appointment.availability.application.usecases.GetProfessionalAvailabilityUseCaseImpl;
-import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatedraOccupancyGatewayAdapter;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatalogProfessionalGatewayAdapter;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatalogRestClientSupport;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatalogWeeklyScheduleGatewayAdapter;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.AppointmentOccupancyDtoMapper;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogProfessionalDtoMapper;
-import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogWeeklyScheduleDtoMapper;
-import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
-import ar.edu.um.turnos.appointment.shared.config.CatalogProperties;
-import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
-import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
-import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
-import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -44,6 +28,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.client.RestClient;
+
+import ar.edu.um.turnos.appointment.availability.application.usecases.GetProfessionalAvailabilityUseCaseImpl;
+import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatalogProfessionalGatewayAdapter;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatalogRestClientSupport;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatalogWeeklyScheduleGatewayAdapter;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.CatedraOccupancyGatewayAdapter;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.AppointmentOccupancyDtoMapper;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogProfessionalDtoMapper;
+import ar.edu.um.turnos.appointment.availability.infrastructure.rest.mapper.CatalogWeeklyScheduleDtoMapper;
+import ar.edu.um.turnos.appointment.shared.config.CatalogProperties;
+import ar.edu.um.turnos.appointment.shared.config.CatedraProperties;
+import ar.edu.um.turnos.appointment.shared.error.CatalogClientException;
+import ar.edu.um.turnos.appointment.shared.error.CatedraClientException;
+import ar.edu.um.turnos.appointment.shared.security.AuthenticatedUserProvider;
+import ar.edu.um.turnos.appointment.shared.technical.CatedraTechnicalClient;
 
 class AvailabilityFlowIntegrationTest {
 

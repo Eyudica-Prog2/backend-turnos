@@ -1,5 +1,12 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.adapter;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcess;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessStatus;
@@ -10,12 +17,6 @@ import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.mappe
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.repository.JpaProcessedEventRepository;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.repository.JpaReservationProcessRepository;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.persistence.repository.JpaReservationRepository;
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class JpaReservationRepositoryAdapter implements ReservationRepository {

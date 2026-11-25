@@ -1,7 +1,5 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.scheduling;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationRecoveryReport;
-import ar.edu.um.turnos.appointment.reservation.domain.ports.in.RecoverReservationProcessesUseCase;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +8,9 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationRecoveryReport;
+import ar.edu.um.turnos.appointment.reservation.domain.ports.in.RecoverReservationProcessesUseCase;
 
 @Component
 @ConditionalOnProperty(prefix = "app.reservation.reconciliation", name = "enabled",

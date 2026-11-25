@@ -1,14 +1,15 @@
 package ar.edu.um.turnos.appointment.reservation.infrastructure.web.mapper;
 
-import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
-import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import org.springframework.stereotype.Component;
+
 import ar.edu.um.turnos.appointment.reservation.domain.model.PhoneSubmissionResult;
+import ar.edu.um.turnos.appointment.reservation.domain.model.Reservation;
+import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationHold;
 import ar.edu.um.turnos.appointment.reservation.domain.model.ReservationProcessDetails;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.PhoneSubmissionResponse;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationHoldResponse;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationProcessResponse;
 import ar.edu.um.turnos.appointment.reservation.infrastructure.web.dto.ReservationResponse;
-import org.springframework.stereotype.Component;
 
 @Component
 public class ReservationDtoMapper {

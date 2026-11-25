@@ -5,17 +5,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
-import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
-import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
-import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
-import ar.edu.um.turnos.appointment.availability.domain.ports.out.AppointmentOccupancyGateway;
-import ar.edu.um.turnos.appointment.availability.domain.model.CatalogProfessional;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
-import ar.edu.um.turnos.appointment.availability.domain.model.WeeklyScheduleQuery;
-import ar.edu.um.turnos.appointment.availability.domain.ports.out.ProfessionalCatalogGateway;
-import ar.edu.um.turnos.appointment.availability.domain.ports.out.WeeklyScheduleCatalogGateway;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -28,6 +17,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import ar.edu.um.turnos.appointment.availability.domain.model.AppointmentOccupancy;
+import ar.edu.um.turnos.appointment.availability.domain.model.AvailabilityQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.CatalogProfessional;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyQuery;
+import ar.edu.um.turnos.appointment.availability.domain.model.OccupancyStatus;
+import ar.edu.um.turnos.appointment.availability.domain.model.ProfessionalAvailability;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklySchedule;
+import ar.edu.um.turnos.appointment.availability.domain.model.WeeklyScheduleQuery;
+import ar.edu.um.turnos.appointment.availability.domain.ports.out.AppointmentOccupancyGateway;
+import ar.edu.um.turnos.appointment.availability.domain.ports.out.ProfessionalCatalogGateway;
+import ar.edu.um.turnos.appointment.availability.domain.ports.out.WeeklyScheduleCatalogGateway;
 
 @ExtendWith(MockitoExtension.class)
 class GetProfessionalAvailabilityUseCaseImplTest {

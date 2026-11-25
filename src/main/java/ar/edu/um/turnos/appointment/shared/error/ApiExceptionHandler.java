@@ -1,6 +1,5 @@
 package ar.edu.um.turnos.appointment.shared.error;
 
-import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
