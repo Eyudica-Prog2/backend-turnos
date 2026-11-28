@@ -13,9 +13,10 @@ flowchart LR
     Redis[(Redis cátedra)]
     Kafka[(Kafka cátedra)]
 
-    Client -->|JWT de usuario| Cat
+    Client -->|registro/login + JWT| Turn
     Client -->|JWT de usuario| Turn
     Turn -->|agenda REST + JWT de usuario propagado| Cat
+    Cat -->|introspección por petición + credencial interna| Turn
     Cat --> CatDB
     Turn --> TurnDB
     Turn -->|ocupaciones, holds, reservas + JWT técnico| Central
@@ -36,8 +37,10 @@ turnos, catálogo se resuelve por `http://backend-catalogo:8081`.
 
 ## Propiedad y modelo de datos
 
-Este servicio es propietario de `reservation_process`, `reservation` y `processed_event`.
-`professional_id` referencia un ID externo, no una FK a la base catálogo. La reserva conserva
+Este servicio es propietario de `jhi_user`, `jhi_authority`, `jhi_user_authority`,
+`reservation_process`, `reservation` y `processed_event`. El alta, login y emisión del JWT viven
+acá; la base de Catálogo ya no es fuente de credenciales.
+`professional_id` referencia un ID externo, no una FK a la base Catálogo. La reserva conserva
 atributos descriptivos históricos, pero el catálogo vigente siempre se consulta por HTTP.
 
 ```mermaid
@@ -85,8 +88,8 @@ propietario y las APIs no aceptan un `externalPatientId` arbitrario del cliente.
 ## Contrato con catálogo
 
 Turnos consulta `CATALOGO_API_BASE_URL` antes de crear disponibilidad o una reserva, enviando el
-JWT de usuario autenticado en `Authorization`. Catálogo valida issuer, firma, expiración y
-`ROLE_USER`.
+JWT de usuario autenticado en `Authorization`. Catálogo delega la comprobación del token a
+`POST /api/internal/auth/introspect` de Turnos antes de procesar cada petición protegida.
 
 | Petición | DTO esperado | Uso |
 |---|---|---|
@@ -123,9 +126,15 @@ JWT de usuario con `ROLE_USER`; el detalle de bodies y respuestas está en este 
 
 ## Identidades y seguridad
 
-- El JWT de usuario lo emite catálogo con HS256 e issuer `backend-catalogo`; ambos backends
-  comparten `APP_JWT_SECRET`. Turnos valida firma, issuer, vigencia, `publicId` UUID y autoridad.
-  Propaga el JWT de usuario al catálogo para preservar identidad y trazabilidad.
+- Turnos es dueño de las cuentas y emite el JWT HS256 con issuer `backend-turnos`. Valida firma,
+  vigencia, `publicId` UUID y autoridad localmente. Catálogo no conoce la clave de firma: llama
+  a su endpoint de introspección en cada petición protegida usando credenciales internas Basic
+  configuradas como `APP_AUTH_INTROSPECTION_CLIENT_ID/SECRET` (mismos valores en ambos servicios).
+  Si Turnos no está disponible, Catálogo falla cerrado y no autoriza la petición.
+- Registro, login y perfil son `POST /api/register`, `POST /api/authenticate` y `GET /api/account`
+  bajo backend-turnos. Para migrar usuarios existentes, exportar/importar `jhi_user` y
+  `jhi_user_authority` antes de cambiar los clientes; la migración `V5` crea el esquema destino.
+  No copiar la fila `jhi_authority`, porque el rol `ROLE_USER` ya está sembrado en Turnos.
 - El JWT técnico de cátedra se obtiene usando la cuenta técnica del proyecto y se usa solo para
   REST de cátedra. Nunca se reenvía al cliente final. Kafka/Redis usan la configuración asignada
   a esa cuenta técnica.

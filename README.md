@@ -4,7 +4,7 @@ La arquitectura combinada de los dos backends, la propiedad de datos, el contrat
 `backend-catalogo`, la decisión de JWT y el transporte de despliegue están documentados en
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-Servicio de turnos y reservas del proyecto. Incluye PostgreSQL propio, validación del JWT de usuario, consulta de disponibilidad, creación y confirmación inicial de holds, y consumo idempotente de eventos de reserva.
+Servicio de autenticación, turnos y reservas del proyecto. Es dueño de las cuentas, emite los JWT y ofrece introspección para que Catálogo valide cada petición protegida. Incluye PostgreSQL propio, consulta de disponibilidad, creación y confirmación inicial de holds, y consumo idempotente de eventos de reserva.
 
 ## Requisitos
 
@@ -14,7 +14,7 @@ Servicio de turnos y reservas del proyecto. Incluye PostgreSQL propio, validaci�
 ## Configuración y ejecución local
 
 1. Crear la configuración local: `cp .env.example .env`.
-2. Revisar `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_PORT`, `APP_TIME_ZONE` y los puertos HTTP. `APP_TIME_ZONE` debe coincidir con la zona horaria de los horarios de atención. `.env` está excluido de Git; usar valores reales solo localmente.
+2. Revisar `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_PORT`, `APP_TIME_ZONE`, `APP_JWT_SECRET` y las credenciales `APP_AUTH_INTROSPECTION_CLIENT_ID/SECRET`. Catálogo debe tener las mismas credenciales. `.env` está excluido de Git; usar valores reales solo localmente.
 3. Crear una sola vez la red común (si aún no existe): `docker network create backend-integration`.
 4. Desde esta carpeta, ejecutar `docker compose up --build`.
 
@@ -23,6 +23,15 @@ Al compartir `backend-integration`, el contenedor usa el DNS `backend-catalogo:8
 contrato HTTP; al ejecutar desde el host, el `.env` conserva `http://localhost:8081`.
 
 Para ejecutar el servicio desde el host, con PostgreSQL levantado: `./mvnw spring-boot:run`.
+
+## Autenticación de usuario
+
+Turnos ofrece `POST /api/register`, `POST /api/authenticate` y `GET /api/account`. Emite JWT HS256
+con issuer `backend-turnos`; el secreto `APP_JWT_SECRET` solo se configura aquí. Catálogo valida
+sus peticiones protegidas por introspección remota (`POST /api/internal/auth/introspect`), usando
+las credenciales internas `APP_AUTH_INTROSPECTION_CLIENT_ID/SECRET`, que deben coincidir en ambos
+servicios. Para mover las cuentas que ya existen en Catálogo, seguir
+[`docs/MIGRATE_USERS.md`](docs/MIGRATE_USERS.md).
 
 ## Pruebas
 
@@ -39,7 +48,7 @@ Ejecutar `./mvnw test`. La prueba de contexto usa PostgreSQL con Testcontainers;
 - `POST /api/reservations/{reservationProcessId}/phone` acepta `{ "phoneNumber": "..." }`, normaliza espacios, guiones, paréntesis y puntos, y publica `AdditionalInformationSubmitted` en el topic asignado. Solo responde `202` después del ACK de Kafka.
 - `GET /api/reservations/{reservationProcessId}` devuelve el estado, vencimiento, resultado/error y estado de envío del teléfono; solo el usuario dueño puede consultarlo.
 - El consumidor Kafka obtiene bootstrap server, consumer group y topic desde la configuración de integración de cátedra. Si esa configuración no está disponible al inicio, se vuelve a consultar periódicamente. Si un error de procesamiento detiene el contenedor, el backend lo recrea en el siguiente ciclo de recuperación. Deduplica `eventId` y confirma el offset solo luego de persistir el cambio; el registro fallido permanece sin confirmar para poder reprocesarse.
-- Para confirmar, el JWT debe incluir además los claims `firstName` y `lastName`, emitidos por `backend-catalogo`. Tokens anteriores que no los incluyan no pueden confirmar un hold y reciben `USER_PROFILE_CLAIMS_MISSING`; basta volver a autenticarse para recibir un token actualizado.
+- Para confirmar, el JWT debe incluir además los claims `firstName` y `lastName`, emitidos por este servicio. Tokens anteriores que no los incluyan no pueden confirmar un hold y reciben `USER_PROFILE_CLAIMS_MISSING`; basta volver a autenticarse para recibir un token actualizado.
 - Una respuesta ambigua al confirmar se reconcilia por `GET /api/appointments` antes de considerar un reintento. La creación/confirmación no se reintenta ciegamente.
 - Un envío de teléfono sin ACK queda como `PENDING`: no se reenvía automáticamente. El proceso se puede consultar y la recepción de un rechazo habilita un nuevo intento con un `eventId` nuevo.
 - El teléfono se valida después de normalizar con `^\+?[0-9]{7,15}$`; no se incluye en respuestas ni logs.
