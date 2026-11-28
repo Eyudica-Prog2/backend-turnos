@@ -48,6 +48,8 @@ class TurnosApplicationTests {
         registry.add("DB_USER", POSTGRES::getUsername);
         registry.add("DB_PASSWORD", POSTGRES::getPassword);
         registry.add("APP_JWT_SECRET", () -> "test-only-app-jwt-secret-with-minimum-length");
+        registry.add("APP_AUTH_INTROSPECTION_CLIENT_ID", () -> "catalogo-test");
+        registry.add("APP_AUTH_INTROSPECTION_CLIENT_SECRET", () -> "test-only-introspection-client-secret");
         registry.add("APP_TIME_ZONE", () -> "UTC");
         registry.add("CATEDRA_API_BASE_URL", () -> "http://localhost:9999");
         registry.add("CATEDRA_HTTP_CONNECT_TIMEOUT_MS", () -> "1000");

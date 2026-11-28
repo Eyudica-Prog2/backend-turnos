@@ -28,6 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 @WebMvcTest(
         controllers = JwtSecurityConfigurationTest.SecurityProbeController.class,
         properties = {"app.jwt.secret=test-only-shared-secret-with-32-bytes-minimum",
+                "app.jwt.expiry-seconds=3600",
+                "app.jwt.remember-me-expiry-seconds=86400",
+                "app.auth.introspection.client-id=catalogo-test",
+                "app.auth.introspection.client-secret=test-only-introspection-client-secret",
                 "app.cors.allowed-origins=http://localhost:3000"})
 @Import({
         JwtSecurityConfiguration.class,
@@ -73,7 +77,7 @@ class JwtSecurityConfigurationTest {
     @Test
     void acceptsCatalogTokenAndExposesAuthenticatedIdentity() throws Exception {
         mockMvc.perform(get("/test/security/identity")
-                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-catalogo", true,
+                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-turnos", true,
                                 List.of("ROLE_USER"), PUBLIC_ID.toString())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("test.user"))
@@ -85,7 +89,7 @@ class JwtSecurityConfigurationTest {
     void rejectsTokenSignedWithAnotherSecret() throws Exception {
         mockMvc.perform(get("/test/security/identity")
                         .header("Authorization", "Bearer " + token("another-test-secret-with-32-bytes-minimum",
-                                "backend-catalogo", true, List.of("ROLE_USER"), PUBLIC_ID.toString())))
+                                "backend-turnos", true, List.of("ROLE_USER"), PUBLIC_ID.toString())))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -100,7 +104,7 @@ class JwtSecurityConfigurationTest {
     @Test
     void rejectsExpiredToken() throws Exception {
         mockMvc.perform(get("/test/security/identity")
-                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-catalogo", false,
+                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-turnos", false,
                                 List.of("ROLE_USER"), PUBLIC_ID.toString())))
                 .andExpect(status().isUnauthorized());
     }
@@ -108,7 +112,7 @@ class JwtSecurityConfigurationTest {
     @Test
     void rejectsAuthenticatedTokenWithoutUserAuthority() throws Exception {
         mockMvc.perform(get("/test/security/identity")
-                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-catalogo", true,
+                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-turnos", true,
                                 List.of(), PUBLIC_ID.toString())))
                 .andExpect(status().isForbidden());
     }
@@ -116,7 +120,7 @@ class JwtSecurityConfigurationTest {
     @Test
     void rejectsTokenWithoutValidPublicId() throws Exception {
         mockMvc.perform(get("/test/security/identity")
-                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-catalogo", true,
+                        .header("Authorization", "Bearer " + token(TEST_SECRET, "backend-turnos", true,
                                 List.of("ROLE_USER"), "not-a-uuid")))
                 .andExpect(status().isUnauthorized());
     }

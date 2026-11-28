@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import ar.edu.um.turnos.appointment.reservation.application.exception.ReservationException;
+import ar.edu.um.turnos.appointment.user.application.exception.UserException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -31,6 +32,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ReservationException.class)
     ResponseEntity<ProblemDetail> handleReservationFailure(ReservationException failure,
                                                             HttpServletRequest request) {
+        return problem(failure.getCode(), failure.getHttpStatus(), failure.getMessage(), request);
+    }
+
+    @ExceptionHandler(UserException.class)
+    ResponseEntity<ProblemDetail> handleUserFailure(UserException failure, HttpServletRequest request) {
         return problem(failure.getCode(), failure.getHttpStatus(), failure.getMessage(), request);
     }
 
